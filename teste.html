@@ -136,28 +136,37 @@ const json=await resposta.json();
 document.getElementById("resultado").textContent=
 JSON.stringify(json,null,2);
 
-if(json.produto){
+if(json.produtos && json.produtos.length){
 
-document.getElementById("produto").style.display="block";
+    document.getElementById("produto").style.display="block";
 
-document.getElementById("produto").innerHTML=`
+    let html="<h2>Produtos Encontrados</h2>";
 
-<h3>${json.produto.nome}</h3>
+    json.produtos.forEach(produto=>{
 
-<p><b>Marca:</b> ${json.produto.marca}</p>
+        html += `
 
-<p><b>Score:</b> ${json.produto.score}</p>
+        <div style="border:1px solid #ddd;padding:15px;margin-bottom:15px;border-radius:8px">
 
-<a href="${json.produto.url}" target="_blank">
+            <h3>${produto.nome}</h3>
 
-<button>Abrir Produto</button>
+            <p><b>Marca:</b> ${produto.marca}</p>
 
-</a>
+            <p><b>Score:</b> ${produto.score}</p>
 
-`;
+            <a href="${produto.url}" target="_blank">
+                <button>Ver Produto</button>
+            </a>
+
+        </div>
+
+        `;
+
+    });
+
+    document.getElementById("produto").innerHTML = html;
 
 }
-
 }
 
 reader.readAsDataURL(foto.files[0]);
