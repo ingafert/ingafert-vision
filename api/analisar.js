@@ -252,14 +252,26 @@ function buscarProdutos(analise){
 
         // Nome
         if(
-            analise.nome_comercial &&
-            produto.nome &&
-            produto.nome.toUpperCase().includes(
-                analise.nome_comercial.toUpperCase()
-            )
-        ){
-            score += 40;
+            // Busca por palavras
+
+if (analise.nome_comercial && produto.nome) {
+
+    const palavras = analise.nome_comercial
+        .toUpperCase()
+        .split(" ");
+
+    for (const palavra of palavras) {
+
+        if (
+            palavra.length > 2 &&
+            produto.nome.toUpperCase().includes(palavra)
+        ) {
+            score += 15;
         }
+
+    }
+
+}
 
         // Marca
         if(
