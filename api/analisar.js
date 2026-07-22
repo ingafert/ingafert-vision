@@ -9,27 +9,23 @@ const openai = new OpenAI({
 let catalogo = [];
 
 try {
-
   catalogo = JSON.parse(
     fs.readFileSync(
       path.join(process.cwd(), "dados", "catalogo.json"),
       "utf8"
     )
   );
-
 } catch (e) {
-
   console.log("Catálogo ainda vazio.");
-
   catalogo = [];
-
 }
 
 export default async function handler(req, res) {
+
   if (req.method !== "POST") {
     return res.status(200).json({
       status: "ok",
-      mensagem: "Envie uma imagem em Base64.",
+      mensagem: "API Ingafert Vision",
       exemplo: {
         imagem: "data:image/jpeg;base64,..."
       }
@@ -37,6 +33,7 @@ export default async function handler(req, res) {
   }
 
   try {
+
     const { imagem } = req.body;
 
     if (!imagem) {
@@ -47,59 +44,79 @@ export default async function handler(req, res) {
     }
 
     const resposta = await openai.responses.create({
+
       model: "gpt-4.1",
+
       reasoning: {
-  effort: "high"
-},
+        effort: "high"
+      },
 
       input: [
         {
           role: "user",
           content: [
+
             {
               type: "input_text",
-            text: `
+
+              text: `
 Você é um especialista em peças para máquinas agrícolas.
 
-Sua missão é identificar a peça da imagem com a maior precisão possível.
+Você trabalha exclusivamente com peças agrícolas.
+
+Conhece profundamente:
+
+- John Deere
+- New Holland
+- Case IH
+- Massey Ferguson
+- Valtra
+- Jacto
+- Jumil
+- Planti Center
+- Baldan
+- Tatu Marchesan
+- Stara
+- GTS
+- Semeato
 
 Analise cuidadosamente:
 
-- formato da peça;
-- material;
-- cor;
-- desgaste;
-- furos;
-- rolamentos;
-- dentes;
-- estrias;
-- chavetas;
-- parafusos;
-- soldas;
-- etiquetas;
-- logotipos;
-- gravações;
-- números fundidos;
-- números estampados;
-- QR Codes;
-- códigos de barras;
-- inscrições em baixo relevo.
+- formato
+- material
+- cor
+- desgaste
+- furos
+- rolamentos
+- estrias
+- dentes
+- chavetas
+- parafusos
+- soldas
+- etiquetas
+- logotipos
+- gravações
+- números fundidos
+- números estampados
+- QR Code
+- código de barras
 
-Sempre tente localizar:
+Sempre procure identificar:
 
-• Marca
-• Modelo
-• Código Original
-• Referência
-• Fabricante
+- marca
+- fabricante
+- código original
+- referências
+- aplicação
+- compatibilidade
 
-Nunca invente um código.
+Nunca invente códigos.
 
-Se não conseguir ler um número, deixe o campo vazio.
+Se não conseguir ler um número deixe vazio.
 
-Retorne APENAS JSON válido.
+Responda APENAS um JSON.
 
-Formato obrigatório:
+Formato:
 
 {
   "tipo_peca":"",
@@ -117,106 +134,143 @@ Formato obrigatório:
 }
 `
             },
-           {
-  type: "input_image",
-  image_url: imagem,
-  detail: "high"
-}
+
+            {
+              type: "input_image",
+              image_url: imagem,
+              detail: "high"
+            }
+
           ]
         }
       ]
+
     });
 
     let resultado;
 
-try {
+    try {
 
-    resultado = JSON.parse(resposta.output_text);
+      resultado = JSON.parse(resposta.output_text);
 
-} catch (e) {
+    } catch (e) {
 
-    const texto = resposta.output_text;
+      const texto = resposta.output_text;
 
-    const inicio = texto.indexOf("{");
-    const fim = texto.lastIndexOf("}");
+      const inicio = texto.indexOf("{");
+      const fim = texto.lastIndexOf("}");
 
-    if (inicio !== -1 && fim !== -1) {
+      if (inicio !== -1 && fim !== -1) {
 
         resultado = JSON.parse(
-            texto.substring(inicio, fim + 1)
+          texto.substring(inicio, fim + 1)
         );
 
-    } else {
+      } else {
 
         resultado = {
-            tipo_peca: "",
-            nome_comercial: "",
-            marca: "",
-            modelo: "",
-            categoria: "",
-            codigo_original: "",
-            referencias: [],
-            fabricante: "",
-            descricao: texto,
-            compatibilidade: [],
-            nivel_confianca: 0,
-            observacoes: "Não foi possível interpretar o JSON."
+          descricao: texto
         };
+
+      }
 
     }
 
-}
+    resultado = normalizarResultado(resultado);
+
     const produto = buscarProduto(resultado);
-    
+
     return res.status(200).json({
 
-    status: "ok",
+      status: "ok",
 
-    analise: resultado,
+      analise: resultado,
 
-    produto,
+      produto,
 
-    score: resultado.nivel_confianca || 90
+      score: resultado.nivel_confianca
 
-});
+    });
 
   } catch (erro) {
 
     console.error(erro);
 
     return res.status(500).json({
+
       status: "erro",
+
       mensagem: erro.message
+
     });
 
   }
+
 }
 
 function buscarProduto(analise) {
 
-    if (!analise) return null;
+  if (!analise) return null;
 
-    const referencias = analise.referencias || [];
+  if (!catalogo.length) return null;
 
-    for (const produto of catalogo) {
+  const referencias = analise.referencias || [];
 
-        if (!produto.referencias) continue;
+  for (const produto of catalogo) {
 
-        for (const ref of referencias) {
+    if (!produto.referencias) continue;
 
-            const encontrou = produto.referencias.some(r =>
-                String(r).toUpperCase().trim() ===
-                String(ref).toUpperCase().trim()
-            );
+    for (const ref of referencias) {
 
-            if (encontrou) {
-                return produto;
-            }
+      const encontrou = produto.referencias.some(r =>
+        String(r).trim().toUpperCase() ===
+        String(ref).trim().toUpperCase()
+      );
 
-        }
+      if (encontrou) {
+        return produto;
+      }
 
     }
 
-    return null;
+  }
+
+  return null;
+
+}
+
+function normalizarResultado(resultado = {}) {
+
+  return {
+
+    tipo_peca: resultado.tipo_peca || "",
+
+    nome_comercial: resultado.nome_comercial || "",
+
+    marca: resultado.marca || "",
+
+    modelo: resultado.modelo || "",
+
+    categoria: resultado.categoria || "",
+
+    codigo_original: resultado.codigo_original || "",
+
+    referencias: Array.isArray(resultado.referencias)
+      ? resultado.referencias
+      : [],
+
+    fabricante: resultado.fabricante || "",
+
+    descricao: resultado.descricao || "",
+
+    compatibilidade: Array.isArray(resultado.compatibilidade)
+      ? resultado.compatibilidade
+      : [],
+
+    nivel_confianca: Number(resultado.nivel_confianca || 0),
+
+    observacoes: resultado.observacoes || ""
+
+  };
 
 }
