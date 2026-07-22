@@ -291,14 +291,38 @@ if (lista) {
             score += 20;
         }
 
-        if(score > 0){
+       // Penaliza palavras incompatíveis
+const nome = (produto.nome || "").toUpperCase();
 
-            resultados.push({
-                ...produto,
-                score
-            });
+if (
+    nome.includes("CALÇO") ||
+    nome.includes("SEPARADOR") ||
+    nome.includes("EIXO") ||
+    nome.includes("BUCHA") ||
+    nome.includes("ROLAMENTO") ||
+    nome.includes("FLANGE")
+) {
+    score -= 50;
+}
 
-        }
+// Prioriza produtos que realmente são facas/lâminas
+if (
+    nome.includes("FACA") ||
+    nome.includes("LÂMINA") ||
+    nome.includes("LAMINA") ||
+    nome.includes("SEGMENTO")
+) {
+    score += 50;
+}
+
+if (score > 0) {
+
+    resultados.push({
+        ...produto,
+        score
+    });
+
+}
 
     }
 
