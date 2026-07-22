@@ -263,8 +263,18 @@ if (analise.nome_comercial && produto.nome) {
 
         if (palavra.length < 3) continue;
 
-        if (nomeProduto.includes(palavra)) {
-            score += 15;
+       if (nomeProduto.includes(palavra)) {
+    score += 20;
+}
+
+const lista = sinonimos[palavra.toLowerCase()];
+
+if (lista) {
+
+    for (const s of lista) {
+
+        if (nomeProduto.includes(s)) {
+            score += 20;
         }
 
     }
