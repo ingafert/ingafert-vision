@@ -249,23 +249,21 @@ function buscarProdutos(analise){
             }
 
         }
-
-        // Nome
-        if(
-            // Busca por palavras
+// Busca por palavras
 
 if (analise.nome_comercial && produto.nome) {
 
     const palavras = analise.nome_comercial
         .toUpperCase()
-        .split(" ");
+        .split(/\s+/);
+
+    const nomeProduto = produto.nome.toUpperCase();
 
     for (const palavra of palavras) {
 
-        if (
-            palavra.length > 2 &&
-            produto.nome.toUpperCase().includes(palavra)
-        ) {
+        if (palavra.length < 3) continue;
+
+        if (nomeProduto.includes(palavra)) {
             score += 15;
         }
 
