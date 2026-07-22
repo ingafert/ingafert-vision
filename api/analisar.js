@@ -207,128 +207,129 @@ Formato:
 
 }
 
-function buscarProdutos(analise){
+function buscarProdutos(analise) {
 
-    if(!analise) return [];
+    if (!analise) return [];
 
-    if(!catalogo.length) return [];
+    if (!catalogo.length) return [];
 
-    const resultados=[];
+    const resultados = [];
 
-    for(const produto of catalogo){
+    for (const produto of catalogo) {
 
-        let score=0;
+        let score = 0;
+
+        const nome = (produto.nome || "").toUpperCase();
 
         // Código original
-        if(
+        if (
             analise.codigo_original &&
             produto.codigo_original &&
-            analise.codigo_original.toUpperCase() ===
-            produto.codigo_original.toUpperCase()
-        ){
+            analise.codigo_original.toUpperCase() === produto.codigo_original.toUpperCase()
+        ) {
             score += 100;
         }
 
         // Referências
-        if(
+        if (
             Array.isArray(analise.referencias) &&
             Array.isArray(produto.referencias)
-        ){
+        ) {
 
-            for(const ref of analise.referencias){
+            for (const ref of analise.referencias) {
 
-                if(
+                if (
                     produto.referencias.some(r =>
                         String(r).trim().toUpperCase() ===
                         String(ref).trim().toUpperCase()
                     )
-                ){
+                ) {
                     score += 80;
                 }
 
             }
 
         }
-// Busca por palavras
 
-if (analise.nome_comercial && produto.nome) {
+        // Busca por palavras
+        if (analise.nome_comercial && produto.nome) {
 
-    const palavras = analise.nome_comercial
-        .toUpperCase()
-        .split(/\s+/);
+            const palavras = analise.nome_comercial
+                .toUpperCase()
+                .split(/\s+/);
 
-    const nomeProduto = produto.nome.toUpperCase();
+            for (const palavra of palavras) {
 
-    for (const palavra of palavras) {
+                if (palavra.length < 3) continue;
 
-        if (palavra.length < 3) continue;
+                if (nome.includes(palavra)) {
+                    score += 20;
+                }
 
-       if (nomeProduto.includes(palavra)) {
-    score += 20;
-}
+                const lista = sinonimos[palavra.toLowerCase()];
 
-const lista = sinonimos[palavra.toLowerCase()];
+                if (lista) {
 
-if (lista) {
+                    for (const s of lista) {
 
-    for (const s of lista) {
+                        if (nome.includes(s)) {
+                            score += 20;
+                        }
 
-        if (nomeProduto.includes(s)) {
-            score += 20;
+                    }
+
+                }
+
+            }
+
         }
 
-    }
-
-}
-
         // Marca
-        if(
+        if (
             analise.marca &&
             produto.marca &&
             analise.marca.toUpperCase() ===
             produto.marca.toUpperCase()
-        ){
+        ) {
             score += 20;
         }
 
-       // Penaliza palavras incompatíveis
-const nome = (produto.nome || "").toUpperCase();
+        // Penalizações
+        if (
+            nome.includes("CALÇO") ||
+            nome.includes("SEPARADOR") ||
+            nome.includes("EIXO") ||
+            nome.includes("BUCHA") ||
+            nome.includes("ROLAMENTO") ||
+            nome.includes("FLANGE")
+        ) {
+            score -= 50;
+        }
 
-if (
-    nome.includes("CALÇO") ||
-    nome.includes("SEPARADOR") ||
-    nome.includes("EIXO") ||
-    nome.includes("BUCHA") ||
-    nome.includes("ROLAMENTO") ||
-    nome.includes("FLANGE")
-) {
-    score -= 50;
-}
+        // Prioridades
+        if (
+            nome.includes("FACA") ||
+            nome.includes("LÂMINA") ||
+            nome.includes("LAMINA") ||
+            nome.includes("SEGMENTO")
+        ) {
+            score += 50;
+        }
 
-// Prioriza produtos que realmente são facas/lâminas
-if (
-    nome.includes("FACA") ||
-    nome.includes("LÂMINA") ||
-    nome.includes("LAMINA") ||
-    nome.includes("SEGMENTO")
-) {
-    score += 50;
-}
+        if (score > 0) {
 
-if (score > 0) {
+            resultados.push({
+                ...produto,
+                score
+            });
 
-    resultados.push({
-        ...produto,
-        score
-    });
-
-}
+        }
 
     }
 
-    resultados.sort((a,b)=>b.score-a.score);
+    resultados.sort((a, b) => b.score - a.score);
 
-    return resultados.slice(0,3);
+    return resultados.slice(0, 3);
 
 }
 const sinonimos = {
