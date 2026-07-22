@@ -127,15 +127,45 @@ Formato obrigatório:
       ]
     });
 
-    let resultado = resposta.output_text;
+    let resultado;
 
-    try {
-      resultado = JSON.parse(resultado);
-    } catch {
-      resultado = {
-        resposta: resultado
-      };
+try {
+
+    resultado = JSON.parse(resposta.output_text);
+
+} catch (e) {
+
+    const texto = resposta.output_text;
+
+    const inicio = texto.indexOf("{");
+    const fim = texto.lastIndexOf("}");
+
+    if (inicio !== -1 && fim !== -1) {
+
+        resultado = JSON.parse(
+            texto.substring(inicio, fim + 1)
+        );
+
+    } else {
+
+        resultado = {
+            tipo_peca: "",
+            nome_comercial: "",
+            marca: "",
+            modelo: "",
+            categoria: "",
+            codigo_original: "",
+            referencias: [],
+            fabricante: "",
+            descricao: texto,
+            compatibilidade: [],
+            nivel_confianca: 0,
+            observacoes: "Não foi possível interpretar o JSON."
+        };
+
     }
+
+}
     const produto = buscarProduto(resultado);
     
     return res.status(200).json({
