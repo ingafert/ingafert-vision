@@ -297,7 +297,23 @@ if (analise.nome_comercial && produto.nome) {
     return resultados.slice(0,3);
 
 }
+const sinonimos = {
 
+    faca: ["LAMINA", "LÂMINA"],
+
+    lamina: ["FACA", "LÂMINA"],
+
+    "lâmina": ["FACA", "LAMINA"],
+
+    plataforma: ["BARRA", "CORTE"],
+
+    corte: ["LAMINA", "FACA", "SEGMENTO"],
+
+    barra: ["PLATAFORMA", "CORTE"],
+
+    segmento: ["FACA", "LAMINA"]
+
+};
 function normalizarResultado(resultado = {}) {
 
   return {
