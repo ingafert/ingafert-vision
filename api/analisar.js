@@ -8,7 +8,7 @@ const openai = new OpenAI({
 
 const catalogo = JSON.parse(
   fs.readFileSync(
-    path.join(process.cwd(), "dados", "catalogo.json"),
+    path.join(process.cwd(), "api", "dados", "catalogo.json"),
     "utf8"
   )
 );
