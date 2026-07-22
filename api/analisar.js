@@ -6,12 +6,24 @@ const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
 });
 
-const catalogo = JSON.parse(
-  fs.readFileSync(
-    path.join(process.cwd(), "api", "dados", "catalogo.json"),
-    "utf8"
-  )
-);
+let catalogo = [];
+
+try {
+
+  catalogo = JSON.parse(
+    fs.readFileSync(
+      path.join(process.cwd(), "dados", "catalogo.json"),
+      "utf8"
+    )
+  );
+
+} catch (e) {
+
+  console.log("Catálogo ainda vazio.");
+
+  catalogo = [];
+
+}
 
 export default async function handler(req, res) {
   if (req.method !== "POST") {
