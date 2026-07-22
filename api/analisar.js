@@ -6,28 +6,17 @@ const openai = new OpenAI({
 
 export default async function handler(req, res) {
 
- if (req.method === "GET") {
-
-    return res.status(200).json({
-        status: "ok",
-        openai: !!process.env.OPENAI_API_KEY,
-        mensagem: "API pronta para receber imagens."
-    });
-
-}
-
   try {
 
-    if (!process.env.OPENAI_API_KEY) {
-      return res.status(500).json({
-        erro: "OPENAI_API_KEY não configurada."
-      });
-    }
+    const resposta = await openai.responses.create({
+      model: "gpt-4.1-mini",
+      input: "Responda apenas com a palavra: OK"
+    });
 
     return res.status(200).json({
       status: "ok",
-      mensagem: "OpenAI conectada com sucesso.",
-      versao: "2.0.0"
+      openai: true,
+      resposta: resposta.output_text
     });
 
   } catch (erro) {
@@ -35,7 +24,8 @@ export default async function handler(req, res) {
     console.error(erro);
 
     return res.status(500).json({
-      erro: erro.message
+      status: "erro",
+      mensagem: erro.message
     });
 
   }
