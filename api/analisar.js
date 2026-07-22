@@ -8,10 +8,10 @@ export default async function handler(req, res) {
   if (req.method !== "POST") {
     return res.status(200).json({
       status: "ok",
-      mensagem: "Envie uma imagem em Base64 usando POST.",
+      mensagem: "Envie uma imagem em Base64.",
       exemplo: {
-        imagem: "data:image/jpeg;base64,...",
-      },
+        imagem: "data:image/jpeg;base64,..."
+      }
     });
   }
 
@@ -21,7 +21,7 @@ export default async function handler(req, res) {
     if (!imagem) {
       return res.status(400).json({
         status: "erro",
-        mensagem: "Imagem não enviada.",
+        mensagem: "Imagem não enviada."
       });
     }
 
@@ -35,15 +35,17 @@ export default async function handler(req, res) {
             {
               type: "input_text",
               text: `
-Você é o maior especialista do mundo em peças para máquinas agrícolas.
+Você é um especialista em peças para máquinas agrícolas.
 
-Analise cuidadosamente a imagem enviada.
+Analise cuidadosamente a imagem.
 
-Sua missão é identificar a peça com a maior precisão possível.
+Identifique a peça somente quando houver evidências suficientes.
 
-Responda SOMENTE um JSON válido.
+Nunca invente códigos.
 
-Formato obrigatório:
+Se algum campo não puder ser identificado, deixe vazio.
+
+Responda SOMENTE um JSON válido exatamente neste formato:
 
 {
   "tipo_peca":"",
@@ -59,41 +61,40 @@ Formato obrigatório:
   "nivel_confianca":0,
   "observacoes":""
 }
-
-Regras:
-
-- Procure números gravados na peça.
-- Procure etiquetas.
-- Procure logotipos.
-- Procure gravações em baixo relevo.
-- Nunca invente códigos.
-- Se não encontrar um campo, deixe vazio.
-- nivel_confianca deve ser de 0 a 100.
-- Não escreva explicações.
-- Não utilize markdown.
-- Retorne apenas JSON.
-`,
+`
             },
             {
               type: "input_image",
-              image_url: imagem,
-            },
-          ],
-        },
-      ],
+              image_url: imagem
+            }
+          ]
+        }
+      ]
     });
+
+    let resultado = resposta.output_text;
+
+    try {
+      resultado = JSON.parse(resultado);
+    } catch {
+      resultado = {
+        resposta: resultado
+      };
+    }
 
     return res.status(200).json({
       status: "ok",
-      resposta: resposta.output_text,
+      resultado
     });
+
   } catch (erro) {
+
     console.error(erro);
 
     return res.status(500).json({
       status: "erro",
-      mensagem: erro.message,
-      detalhe: erro,
+      mensagem: erro.message
     });
+
   }
 }
