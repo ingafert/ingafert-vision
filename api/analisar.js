@@ -288,14 +288,6 @@ function buscarProdutos(analise){
 
 }
 
-    }
-
-  }
-
-  return null;
-
-}
-
 function normalizarResultado(resultado = {}) {
 
   return {
