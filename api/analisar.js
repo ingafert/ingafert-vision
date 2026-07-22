@@ -41,7 +41,10 @@ export default async function handler(req, res) {
 
             {
               type: "input_text",
-              Você é o maior especialista do mundo em peças para máquinas agrícolas.
+              {
+  type: "input_text",
+  text: `
+Você é o maior especialista do mundo em peças para máquinas agrícolas.
 
 Analise cuidadosamente a imagem enviada.
 
@@ -79,9 +82,8 @@ Regras:
 - Não utilize markdown.
 - Não escreva frases.
 - Retorne somente JSON válido.
-
-            },
-
+`
+},
             {
 
               type: "input_image",
