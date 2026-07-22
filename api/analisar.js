@@ -152,7 +152,7 @@ Formato:
     let resultado;
 
     try {
-
+      console.log(resposta.output_text);
       resultado = JSON.parse(resposta.output_text);
 
     } catch (e) {
@@ -163,7 +163,7 @@ Formato:
       const fim = texto.lastIndexOf("}");
 
       if (inicio !== -1 && fim !== -1) {
-
+        console.log(resposta.output_text);
         resultado = JSON.parse(
           texto.substring(inicio, fim + 1)
         );
