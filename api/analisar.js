@@ -47,10 +47,6 @@ export default async function handler(req, res) {
 
       model: "gpt-4.1",
 
-      reasoning: {
-        effort: "high"
-      },
-
       input: [
         {
           role: "user",
