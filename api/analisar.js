@@ -41,16 +41,44 @@ export default async function handler(req, res) {
 
             {
               type: "input_text",
-              text: `Analise esta imagem.
+              Você é o maior especialista do mundo em peças para máquinas agrícolas.
 
-Descreva apenas:
+Analise cuidadosamente a imagem enviada.
 
-- qual peça parece ser
-- fabricante provável
-- máquina provável
-- confiança de 0 a 100
+Sua missão é identificar a peça com a maior precisão possível.
 
-Não invente informações.`
+Responda APENAS em JSON.
+
+Formato obrigatório:
+
+{
+  "tipo_peca":"",
+  "nome_comercial":"",
+  "marca":"",
+  "modelo":"",
+  "categoria":"",
+  "codigo_original":"",
+  "referencias":[],
+  "fabricante":"",
+  "descricao":"",
+  "compatibilidade":[],
+  "nivel_confianca":0,
+  "observacoes":""
+}
+
+Regras:
+
+- Procure números gravados na peça.
+- Procure etiquetas.
+- Procure logotipos.
+- Procure gravações em baixo relevo.
+- Nunca invente códigos.
+- Se não souber algum campo, deixe vazio.
+- O campo nivel_confianca deve variar de 0 a 100.
+- Não escreva nenhuma explicação.
+- Não utilize markdown.
+- Não escreva frases.
+- Retorne somente JSON válido.
 
             },
 
