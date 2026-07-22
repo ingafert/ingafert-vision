@@ -174,20 +174,23 @@ Formato:
 
     resultado = normalizarResultado(resultado);
 
-    const produto = buscarProduto(resultado);
-
+    const produtos = buscarProdutos(resultado);
+    const produto = produtos.length ? produtos[0] : null;
+    
     return res.status(200).json({
 
-      status: "ok",
+    status:"ok",
 
-      analise: resultado,
+    analise:resultado,
 
-      produto,
+    produto,
 
-      score: resultado.nivel_confianca
+    produtos,
 
-    });
+    score:resultado.nivel_confianca
 
+});
+    
   } catch (erro) {
 
     console.error(erro);
@@ -204,42 +207,42 @@ Formato:
 
 }
 
-function buscarProduto(analise) {
+function buscarProdutos(analise){
 
-    if (!analise) return null;
+    if(!analise) return [];
 
-    if (!catalogo.length) return null;
+    if(!catalogo.length) return [];
 
-    let melhorProduto = null;
-    let melhorScore = 0;
+    const resultados=[];
 
-    for (const produto of catalogo) {
+    for(const produto of catalogo){
 
-        let score = 0;
+        let score=0;
 
         // Código original
-        if (
+        if(
             analise.codigo_original &&
             produto.codigo_original &&
-            analise.codigo_original.toUpperCase() === produto.codigo_original.toUpperCase()
-        ) {
+            analise.codigo_original.toUpperCase() ===
+            produto.codigo_original.toUpperCase()
+        ){
             score += 100;
         }
 
         // Referências
-        if (
+        if(
             Array.isArray(analise.referencias) &&
             Array.isArray(produto.referencias)
-        ) {
+        ){
 
-            for (const ref of analise.referencias) {
+            for(const ref of analise.referencias){
 
-                if (
+                if(
                     produto.referencias.some(r =>
-                        String(r).toUpperCase().trim() ===
-                        String(ref).toUpperCase().trim()
+                        String(r).trim().toUpperCase() ===
+                        String(ref).trim().toUpperCase()
                     )
-                ) {
+                ){
                     score += 80;
                 }
 
@@ -248,39 +251,40 @@ function buscarProduto(analise) {
         }
 
         // Nome
-        if (
+        if(
             analise.nome_comercial &&
             produto.nome &&
             produto.nome.toUpperCase().includes(
                 analise.nome_comercial.toUpperCase()
             )
-        ) {
+        ){
             score += 40;
         }
 
         // Marca
-        if (
+        if(
             analise.marca &&
             produto.marca &&
-            analise.marca.toUpperCase() === produto.marca.toUpperCase()
-        ) {
+            analise.marca.toUpperCase() ===
+            produto.marca.toUpperCase()
+        ){
             score += 20;
         }
 
-        if (score > melhorScore) {
+        if(score > 0){
 
-            melhorScore = score;
-
-            melhorProduto = {
+            resultados.push({
                 ...produto,
                 score
-            };
+            });
 
         }
 
     }
 
-    return melhorProduto;
+    resultados.sort((a,b)=>b.score-a.score);
+
+    return resultados.slice(0,3);
 
 }
 
