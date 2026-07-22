@@ -1,48 +1,62 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
-
 <head>
 
 <meta charset="UTF-8">
 
-<title>Ingafert Vision AI</title>
+<title>Ingafert Vision</title>
 
 <style>
 
 body{
     font-family:Arial;
-    background:#f5f5f5;
-    padding:40px;
+    max-width:900px;
+    margin:40px auto;
+    background:#f4f4f4;
 }
 
-.container{
-
-    max-width:700px;
-    margin:auto;
-    background:white;
-    padding:30px;
+.card{
+    background:#fff;
+    padding:25px;
     border-radius:12px;
-    box-shadow:0 0 20px rgba(0,0,0,.1);
-
+    box-shadow:0 3px 12px rgba(0,0,0,.15);
 }
 
 button{
-
-    background:#2f6f35;
-    color:white;
-    border:0;
-    padding:15px 25px;
-    border-radius:8px;
+    padding:12px 25px;
+    background:#0b7d34;
+    color:#fff;
+    border:none;
+    border-radius:6px;
     cursor:pointer;
     font-size:16px;
+}
 
+button:hover{
+    background:#095e27;
+}
+
+img{
+    max-width:350px;
+    margin-top:20px;
+    border-radius:8px;
 }
 
 pre{
+    background:#222;
+    color:#0f0;
+    padding:15px;
+    border-radius:8px;
+    overflow:auto;
+}
 
-    background:#eee;
+.produto{
+
+    margin-top:20px;
     padding:20px;
-    white-space:pre-wrap;
+    background:#eef8ee;
+    border-left:5px solid #0b7d34;
+    display:none;
 
 }
 
@@ -52,65 +66,66 @@ pre{
 
 <body>
 
-<div class="container">
+<div class="card">
 
-<h2>Ingafert Vision AI 2.0</h2>
+<h2>Ingafert Vision</h2>
 
 <input type="file" id="foto">
 
 <br><br>
 
-<button onclick="enviar()">
+<button onclick="analisar()">
 
-Analisar peça
+Analisar Peça
 
 </button>
 
-<br><br>
+<br>
 
-<pre id="resultado">
+<img id="preview">
 
-Aguardando...
+<div id="produto" class="produto"></div>
 
-</pre>
+<pre id="resultado"></pre>
 
 </div>
 
 <script>
 
-async function enviar(){
+const foto=document.getElementById("foto");
+const preview=document.getElementById("preview");
 
-const arquivo=document.getElementById("foto").files[0];
+foto.onchange=()=>{
 
-if(!arquivo){
+const reader=new FileReader();
 
-alert("Escolha uma imagem.");
+reader.onload=e=>{
 
-return;
+preview.src=e.target.result;
 
 }
 
-const leitor=new FileReader();
+reader.readAsDataURL(foto.files[0]);
 
-leitor.onload=async()=>{
+}
 
-const imagem=leitor.result;
+async function analisar(){
 
-document.getElementById("resultado").textContent="Analisando...";
+const reader=new FileReader();
 
-const resposta=await fetch("https://ingafert-vision.vercel.app/api/analisar",{
+reader.onload=async()=>{
+
+const resposta=await fetch("/api/analisar",{
 
 method:"POST",
 
 headers:{
-
 "Content-Type":"application/json"
-
 },
 
 body:JSON.stringify({
 
-imagem
+imagem:reader.result
 
 })
 
@@ -119,17 +134,37 @@ imagem
 const json=await resposta.json();
 
 document.getElementById("resultado").textContent=
-
 JSON.stringify(json,null,2);
 
-};
+if(json.produto){
 
-leitor.readAsDataURL(arquivo);
+document.getElementById("produto").style.display="block";
+
+document.getElementById("produto").innerHTML=`
+
+<h3>${json.produto.nome}</h3>
+
+<p><b>Marca:</b> ${json.produto.marca}</p>
+
+<p><b>Score:</b> ${json.produto.score}</p>
+
+<a href="${json.produto.url}" target="_blank">
+
+<button>Abrir Produto</button>
+
+</a>
+
+`;
+
+}
+
+}
+
+reader.readAsDataURL(foto.files[0]);
 
 }
 
 </script>
 
 </body>
-
 </html>
