@@ -221,6 +221,30 @@ function buscarProdutos(analise) {
 
     const resultados = [];
 
+    const proibidas = [
+        "PIVO",
+        "PIVÔ",
+        "GARFO",
+        "BUCHA",
+        "ROLAMENTO",
+        "CALCO",
+        "CALÇO",
+        "SEPARADOR",
+        "FLANGE",
+        "CAIXA"
+    ];
+
+    const importantes = [
+        "FACA",
+        "LAMINA",
+        "LÂMINA",
+        "SEGMENTO",
+        "CORTE",
+        "BARRA",
+        "SERRILHADA",
+        "TRIANGULAR"
+    ];
+
     for (const produto of catalogo) {
 
         let score = 0;
@@ -233,7 +257,7 @@ function buscarProdutos(analise) {
             produto.codigo_original &&
             analise.codigo_original.toUpperCase() === produto.codigo_original.toUpperCase()
         ) {
-            score += 100;
+            score += 300;
         }
 
         // Referências
@@ -250,15 +274,15 @@ function buscarProdutos(analise) {
                         String(ref).trim().toUpperCase()
                     )
                 ) {
-                    score += 80;
+                    score += 200;
                 }
 
             }
 
         }
 
-        // Busca por palavras
-        if (analise.nome_comercial && produto.nome) {
+        // Nome comercial
+        if (analise.nome_comercial) {
 
             const palavras = analise.nome_comercial
                 .toUpperCase()
@@ -269,23 +293,46 @@ function buscarProdutos(analise) {
                 if (palavra.length < 3) continue;
 
                 if (nome.includes(palavra)) {
-                    score += 20;
+                    score += 25;
                 }
 
-                const lista = sinonimos[palavra.toLowerCase()];
+            }
 
-                if (lista) {
+        }
 
-                    for (const s of lista) {
+        // Tipo da peça
+        if (analise.tipo_peca) {
 
-                        if (nome.includes(s)) {
-                            score += 20;
-                        }
+            const palavras = analise.tipo_peca
+                .toUpperCase()
+                .split(/\s+/);
 
-                    }
+            for (const palavra of palavras) {
 
+                if (palavra.length < 3) continue;
+
+                if (nome.includes(palavra)) {
+                    score += 30;
                 }
 
+            }
+
+        }
+
+        // Prioriza palavras importantes
+        for (const palavra of importantes) {
+
+            if (nome.includes(palavra)) {
+                score += 20;
+            }
+
+        }
+
+        // Penaliza peças incompatíveis
+        for (const palavra of proibidas) {
+
+            if (nome.includes(palavra)) {
+                score -= 80;
             }
 
         }
@@ -294,30 +341,7 @@ function buscarProdutos(analise) {
         if (
             analise.marca &&
             produto.marca &&
-            analise.marca.toUpperCase() ===
-            produto.marca.toUpperCase()
-        ) {
-            score += 20;
-        }
-
-        // Penalizações
-        if (
-            nome.includes("CALÇO") ||
-            nome.includes("SEPARADOR") ||
-            nome.includes("EIXO") ||
-            nome.includes("BUCHA") ||
-            nome.includes("ROLAMENTO") ||
-            nome.includes("FLANGE")
-        ) {
-            score -= 50;
-        }
-
-        // Prioridades
-        if (
-            nome.includes("FACA") ||
-            nome.includes("LÂMINA") ||
-            nome.includes("LAMINA") ||
-            nome.includes("SEGMENTO")
+            analise.marca.toUpperCase() === produto.marca.toUpperCase()
         ) {
             score += 50;
         }
