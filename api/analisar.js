@@ -206,26 +206,83 @@ Formato:
 
 function buscarProduto(analise) {
 
-  if (!analise) return null;
+    if (!analise) return null;
 
-  if (!catalogo.length) return null;
+    if (!catalogo.length) return null;
 
-  const referencias = analise.referencias || [];
+    let melhorProduto = null;
+    let melhorScore = 0;
 
-  for (const produto of catalogo) {
+    for (const produto of catalogo) {
 
-    if (!produto.referencias) continue;
+        let score = 0;
 
-    for (const ref of referencias) {
+        // Código original
+        if (
+            analise.codigo_original &&
+            produto.codigo_original &&
+            analise.codigo_original.toUpperCase() === produto.codigo_original.toUpperCase()
+        ) {
+            score += 100;
+        }
 
-      const encontrou = produto.referencias.some(r =>
-        String(r).trim().toUpperCase() ===
-        String(ref).trim().toUpperCase()
-      );
+        // Referências
+        if (
+            Array.isArray(analise.referencias) &&
+            Array.isArray(produto.referencias)
+        ) {
 
-      if (encontrou) {
-        return produto;
-      }
+            for (const ref of analise.referencias) {
+
+                if (
+                    produto.referencias.some(r =>
+                        String(r).toUpperCase().trim() ===
+                        String(ref).toUpperCase().trim()
+                    )
+                ) {
+                    score += 80;
+                }
+
+            }
+
+        }
+
+        // Nome
+        if (
+            analise.nome_comercial &&
+            produto.nome &&
+            produto.nome.toUpperCase().includes(
+                analise.nome_comercial.toUpperCase()
+            )
+        ) {
+            score += 40;
+        }
+
+        // Marca
+        if (
+            analise.marca &&
+            produto.marca &&
+            analise.marca.toUpperCase() === produto.marca.toUpperCase()
+        ) {
+            score += 20;
+        }
+
+        if (score > melhorScore) {
+
+            melhorScore = score;
+
+            melhorProduto = {
+                ...produto,
+                score
+            };
+
+        }
+
+    }
+
+    return melhorProduto;
+
+}
 
     }
 
