@@ -48,6 +48,9 @@ export default async function handler(req, res) {
 
     const resposta = await openai.responses.create({
       model: "gpt-4.1",
+      reasoning: {
+  effort: "high"
+},
 
       input: [
         {
@@ -114,10 +117,11 @@ Formato obrigatório:
 }
 `
             },
-            {
-              type: "input_image",
-              image_url: imagem
-            }
+           {
+  type: "input_image",
+  image_url: imagem,
+  detail: "high"
+}
           ]
         }
       ]
