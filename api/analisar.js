@@ -1,8 +1,17 @@
 import OpenAI from "openai";
+import fs from "fs";
+import path from "path";
 
 const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
 });
+
+const catalogo = JSON.parse(
+  fs.readFileSync(
+    path.join(process.cwd(), "dados", "catalogo.json"),
+    "utf8"
+  )
+);
 
 export default async function handler(req, res) {
   if (req.method !== "POST") {
@@ -81,11 +90,19 @@ Responda SOMENTE um JSON válido exatamente neste formato:
         resposta: resultado
       };
     }
-
+    const produto = buscarProduto(resultado);
+    
     return res.status(200).json({
-      status: "ok",
-      resultado
-    });
+
+    status: "ok",
+
+    analise: resultado,
+
+    produto,
+
+    score: resultado.nivel_confianca || 90
+
+});
 
   } catch (erro) {
 
@@ -97,4 +114,33 @@ Responda SOMENTE um JSON válido exatamente neste formato:
     });
 
   }
+}
+
+function buscarProduto(analise) {
+
+    if (!analise) return null;
+
+    const referencias = analise.referencias || [];
+
+    for (const produto of catalogo) {
+
+        if (!produto.referencias) continue;
+
+        for (const ref of referencias) {
+
+            const encontrou = produto.referencias.some(r =>
+                String(r).toUpperCase().trim() ===
+                String(ref).toUpperCase().trim()
+            );
+
+            if (encontrou) {
+                return produto;
+            }
+
+        }
+
+    }
+
+    return null;
+
 }
