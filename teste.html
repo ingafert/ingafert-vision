@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+
+<meta charset="UTF-8">
+
+<title>Ingafert Vision AI</title>
+
+<style>
+
+body{
+    font-family:Arial;
+    background:#f5f5f5;
+    padding:40px;
+}
+
+.container{
+
+    max-width:700px;
+    margin:auto;
+    background:white;
+    padding:30px;
+    border-radius:12px;
+    box-shadow:0 0 20px rgba(0,0,0,.1);
+
+}
+
+button{
+
+    background:#2f6f35;
+    color:white;
+    border:0;
+    padding:15px 25px;
+    border-radius:8px;
+    cursor:pointer;
+    font-size:16px;
+
+}
+
+pre{
+
+    background:#eee;
+    padding:20px;
+    white-space:pre-wrap;
+
+}
+
+</style>
+
+</head>
+
+<body>
+
+<div class="container">
+
+<h2>Ingafert Vision AI 2.0</h2>
+
+<input type="file" id="foto">
+
+<br><br>
+
+<button onclick="enviar()">
+
+Analisar peça
+
+</button>
+
+<br><br>
+
+<pre id="resultado">
+
+Aguardando...
+
+</pre>
+
+</div>
+
+<script>
+
+async function enviar(){
+
+const arquivo=document.getElementById("foto").files[0];
+
+if(!arquivo){
+
+alert("Escolha uma imagem.");
+
+return;
+
+}
+
+const leitor=new FileReader();
+
+leitor.onload=async()=>{
+
+const imagem=leitor.result;
+
+document.getElementById("resultado").textContent="Analisando...";
+
+const resposta=await fetch("https://ingafert-vision.vercel.app/api/analisar",{
+
+method:"POST",
+
+headers:{
+
+"Content-Type":"application/json"
+
+},
+
+body:JSON.stringify({
+
+imagem
+
+})
+
+});
+
+const json=await resposta.json();
+
+document.getElementById("resultado").textContent=
+
+JSON.stringify(json,null,2);
+
+};
+
+leitor.readAsDataURL(arquivo);
+
+}
+
+</script>
+
+</body>
+
+</html>
