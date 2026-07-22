@@ -1,0 +1,287 @@
+/*=====================================
+PARTE 5A
+TELA DE RESULTADO
+=====================================*/
+
+const telaResultado = document.createElement("div");
+
+telaResultado.id = "visionResultado";
+
+telaResultado.style.cssText = `
+display:none;
+position:fixed;
+left:0;
+top:0;
+width:100%;
+height:100%;
+background:rgba(0,0,0,.88);
+backdrop-filter:blur(10px);
+z-index:99999999999;
+overflow:auto;
+`;
+
+telaResultado.innerHTML = `
+
+<div style="
+max-width:430px;
+margin:40px auto;
+background:linear-gradient(180deg,#143a1d,#0b2a14);
+border-radius:24px;
+padding:26px;
+box-sizing:border-box;
+color:white;
+">
+
+<div style="
+font-size:28px;
+font-weight:bold;
+color:#FFD84D;
+text-align:center;
+">
+
+🤖 INGAFERT VISION AI
+
+</div>
+
+<div style="
+margin-top:8px;
+text-align:center;
+font-size:18px;
+color:#89ff9b;
+">
+
+✔ Peça Identificada
+
+</div>
+
+<div style="text-align:center;margin:20px 0;">
+
+<img
+id="vr_foto"
+src=""
+style="
+width:220px;
+height:220px;
+object-fit:contain;
+background:#fff;
+padding:10px;
+border-radius:18px;
+display:none;
+box-shadow:0 8px 25px rgba(0,0,0,.25);
+">
+
+</div>
+
+<hr style="margin:22px 0;border:none;border-top:1px solid rgba(255,255,255,.15);">
+
+<div><b>🔩 Peça</b></div>
+<div id="vr_nome" style="margin-bottom:16px;"></div>
+
+<div><b>🏭 Fabricante</b></div>
+<div id="vr_fabricante" style="margin-bottom:16px;"></div>
+
+<div><b>🚜 Aplicação</b></div>
+<div id="vr_aplicacao" style="margin-bottom:16px;"></div>
+
+<div><b>🔢 Referência</b></div>
+<div id="vr_referencia" style="margin-bottom:16px;"></div>
+
+<div><b>🎯 Confiança</b></div>
+
+<div style="
+height:12px;
+background:#1b3d21;
+border-radius:30px;
+overflow:hidden;
+margin-top:10px;
+">
+
+<div id="vr_barra"
+style="
+width:0%;
+height:100%;
+background:linear-gradient(90deg,#FFD84D,#FFE98D);
+transition:.8s;
+">
+
+</div>
+
+</div>
+
+<div
+id="vr_percentual"
+style="
+margin-top:8px;
+font-size:18px;
+font-weight:bold;
+color:#FFD84D;
+">
+
+0%
+
+</div>
+
+<div style="margin-top:25px;">
+
+<b>📋 Observações</b>
+
+<div id="vr_obs" style="margin-top:10px;line-height:1.6;"></div>
+
+</div>
+
+<div style="margin-top:30px;display:grid;gap:12px;">
+
+<a
+id="vr_comprar"
+href="#"
+style="
+display:block;
+height:52px;
+line-height:52px;
+text-align:center;
+text-decoration:none;
+border-radius:14px;
+background:#FFD84D;
+font-weight:bold;
+font-size:17px;
+color:#111;
+cursor:pointer;
+">
+
+🛒 Comprar
+
+</a>
+
+<button id="vr_whats"
+style="
+height:52px;
+border:none;
+border-radius:14px;
+background:#25D366;
+color:white;
+font-weight:bold;
+font-size:17px;
+cursor:pointer;
+">
+
+📲 WhatsApp
+
+</button>
+
+<button id="vr_novafoto"
+style="
+height:52px;
+border:none;
+border-radius:14px;
+background:#2e2e2e;
+color:white;
+font-weight:bold;
+font-size:17px;
+cursor:pointer;
+">
+
+📷 Nova Foto
+
+</button>
+
+</div>
+
+</div>
+
+`;
+
+document.body.appendChild(telaResultado); 
+  
+function mostrarResultadoIA(dados){
+    const ia = dados.analise || {};
+    console.log("ENTROU NA FUNCAO");
+    console.log(dados);
+
+    telaResultado.style.display="block";
+
+    document.getElementById("vr_nome").innerHTML =
+        ia.nome || "Não identificado";
+
+    document.getElementById("vr_fabricante").innerHTML =
+      ia.fabricante || "-";
+
+    document.getElementById("vr_aplicacao").innerHTML =
+        ia.aplicacao || "-";
+
+    document.getElementById("vr_referencia").innerHTML =
+       (Array.isArray(ia.referencias) ? ia.referencias.join(", ") : "-")
+
+    document.getElementById("vr_obs").innerHTML =
+        ia.observacoes || ia.descricao || "-";
+
+    let confianca = parseInt(dados.score || 90);
+
+    document.getElementById("vr_barra").style.width =
+        confianca + "%";
+
+    document.getElementById("vr_percentual").innerHTML =
+        confianca + "%";
+  const btnComprar = document.getElementById("vr_comprar");
+const btnWhats = document.getElementById("vr_whats");
+
+if (dados.produto) {
+
+    btnComprar.style.display = "block";
+    btnWhats.style.display = "block";
+
+    btnComprar.href = dados.produto.url;
+
+} else {
+
+    btnComprar.style.display = "none";
+    btnWhats.style.display = "none";
+
+}
+  if (dados.produto && dados.produto.foto) {
+
+    const foto = document.getElementById("vr_foto");
+
+    foto.src = dados.produto.foto;
+
+    foto.style.display = "block";
+
+}
+  console.log("CHEGOU NOS BOTOES");
+ 
+document.getElementById("vr_whats").onclick = () => {
+
+    let texto = "Olá! Gostaria de informações sobre esta peça:%0A%0A";
+
+   texto += "Peça: " + (ia.nome || "") + "%0A";
+
+texto += "Referência: " +
+(Array.isArray(ia.referencias) ? ia.referencias.join(", ") : "") +
+"%0A";
+
+    if (dados.produto && dados.produto.url) {
+
+        texto += dados.produto.url;
+
+    }
+
+    window.open(
+
+        "https://wa.me/5544991761851?text=" + texto,
+
+        "_blank"
+
+    );
+
+};
+
+document.getElementById("vr_novafoto").onclick = () => {
+
+    telaResultado.style.display = "none";
+
+    preview.style.display = "none";
+
+    overlay.style.display = "block";
+
+};
+
+}  
