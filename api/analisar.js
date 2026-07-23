@@ -11,7 +11,7 @@ let catalogo = [];
 try {
   catalogo = JSON.parse(
     fs.readFileSync(
-      path.join(process.cwd(), "dados", "catalogo.json"),
+      path.join(process.cwd(), "dados", "catalogo_vision.json"),
       "utf8"
     )
   );
