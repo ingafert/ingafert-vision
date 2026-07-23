@@ -2,6 +2,31 @@ import OpenAI from "openai";
 const GOOGLE_API_KEY = process.env.GOOGLE_API_KEY;
 const GOOGLE_CX = process.env.GOOGLE_CX;
 
+async function buscarNoGoogle(termo) {
+
+    const url =
+        `https://www.googleapis.com/customsearch/v1?key=${GOOGLE_API_KEY}&cx=${GOOGLE_CX}&q=${encodeURIComponent(termo)}`;
+
+    const resposta = await fetch(url);
+
+    const dados = await resposta.json();
+
+    if (!dados.items || !dados.items.length) {
+        return null;
+    }
+
+    const item = dados.items[0];
+
+    return {
+        titulo: item.title,
+        url: item.link,
+        descricao: item.snippet,
+        imagem:
+            item.pagemap?.cse_image?.[0]?.src || ""
+    };
+
+}
+
 const openai = new OpenAI({
     apiKey: process.env.OPENAI_API_KEY
 });
@@ -97,11 +122,27 @@ Responda SOMENTE este JSON:
 
 });
 
+const analise = JSON.parse(resposta.output_text);
+
+const termo = [
+    analise.nome,
+    analise.marca,
+    analise.codigo_original
+]
+.filter(Boolean)
+.join(" ");
+
+const produto = await buscarNoGoogle(
+    `site:ingafert.com.br ${termo}`
+);
+
 return res.status(200).json({
 
     status: "ok",
 
-    resposta: resposta.output_text
+    analise,
+
+    produto
 
 });
 
