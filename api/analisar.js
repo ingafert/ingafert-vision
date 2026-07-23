@@ -221,29 +221,15 @@ function buscarProdutos(analise) {
 
     const resultados = [];
 
-    const proibidas = [
-        "PIVO",
-        "PIVÔ",
-        "GARFO",
-        "BUCHA",
-        "ROLAMENTO",
-        "CALCO",
-        "CALÇO",
-        "SEPARADOR",
-        "FLANGE",
-        "CAIXA"
-    ];
-
-    const importantes = [
-        "FACA",
-        "LAMINA",
-        "LÂMINA",
-        "SEGMENTO",
-        "CORTE",
-        "BARRA",
-        "SERRILHADA",
-        "TRIANGULAR"
-    ];
+    const sinonimos = {
+        faca: ["LAMINA", "LÂMINA", "SEGMENTO"],
+        lamina: ["FACA", "LÂMINA", "SEGMENTO"],
+        "lâmina": ["FACA", "LAMINA", "SEGMENTO"],
+        segmento: ["FACA", "LAMINA", "LÂMINA"],
+        barra: ["PLATAFORMA"],
+        plataforma: ["BARRA"],
+        corte: ["FACA", "LAMINA", "LÂMINA", "SEGMENTO"]
+    };
 
     for (const produto of catalogo) {
 
@@ -296,6 +282,20 @@ function buscarProdutos(analise) {
                     score += 25;
                 }
 
+                const lista = sinonimos[palavra.toLowerCase()];
+
+                if (lista) {
+
+                    for (const s of lista) {
+
+                        if (nome.includes(s)) {
+                            score += 20;
+                        }
+
+                    }
+
+                }
+
             }
 
         }
@@ -312,27 +312,9 @@ function buscarProdutos(analise) {
                 if (palavra.length < 3) continue;
 
                 if (nome.includes(palavra)) {
-                    score += 30;
+                    score += 20;
                 }
 
-            }
-
-        }
-
-        // Prioriza palavras importantes
-        for (const palavra of importantes) {
-
-            if (nome.includes(palavra)) {
-                score += 20;
-            }
-
-        }
-
-        // Penaliza peças incompatíveis
-        for (const palavra of proibidas) {
-
-            if (nome.includes(palavra)) {
-                score -= 80;
             }
 
         }
@@ -342,6 +324,37 @@ function buscarProdutos(analise) {
             analise.marca &&
             produto.marca &&
             analise.marca.toUpperCase() === produto.marca.toUpperCase()
+        ) {
+            score += 60;
+        }
+
+        // Categoria
+        if (
+            analise.categoria &&
+            produto.categoria &&
+            produto.categoria.toUpperCase().includes(
+                analise.categoria.toUpperCase()
+            )
+        ) {
+            score += 40;
+        }
+
+        // Penalização
+        if (
+            nome.includes("ROLAMENTO") ||
+            nome.includes("RETENTOR") ||
+            nome.includes("BUCHA") ||
+            nome.includes("PARAFUSO")
+        ) {
+            score -= 40;
+        }
+
+        // Prioridade para facas
+        if (
+            nome.includes("FACA") ||
+            nome.includes("LAMINA") ||
+            nome.includes("LÂMINA") ||
+            nome.includes("SEGMENTO")
         ) {
             score += 50;
         }
@@ -362,23 +375,6 @@ function buscarProdutos(analise) {
     return resultados.slice(0, 3);
 
 }
-const sinonimos = {
-
-    faca: ["LAMINA", "LÂMINA"],
-
-    lamina: ["FACA", "LÂMINA"],
-
-    "lâmina": ["FACA", "LAMINA"],
-
-    plataforma: ["BARRA", "CORTE"],
-
-    corte: ["LAMINA", "FACA", "SEGMENTO"],
-
-    barra: ["PLATAFORMA", "CORTE"],
-
-    segmento: ["FACA", "LAMINA"]
-
-};
 function normalizarResultado(resultado = {}) {
 
   return {
