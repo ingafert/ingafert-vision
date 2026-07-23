@@ -91,7 +91,8 @@ export default async function handler(req, res) {
 
                             type: "input_text",
 
-                           Você é um especialista em peças agrícolas.
+                            text: `Você é um especialista em peças agrícolas.
+
 
 Sua missão é identificar a peça da imagem com a maior precisão possível.
 
