@@ -220,103 +220,156 @@ function normalizar(texto) {
         .trim();
 
 }
+function palavras(texto) {
+
+    return normalizar(texto)
+        .split(" ")
+        .filter(p =>
+            p.length > 2 &&
+            ![
+                "para",
+                "com",
+                "sem",
+                "dos",
+                "das",
+                "de",
+                "da",
+                "do",
+                "em",
+                "no",
+                "na",
+                "e"
+            ].includes(p)
+        );
+
+}
+
 function buscarProdutos(analise) {
 
     const resultados = [];
 
-    const tipo = normalizar(analise.tipo_peca || "");
-    const nome = normalizar(analise.nome_comercial || "");
-    const categoria = normalizar(analise.categoria || "");
-    const marca = normalizar(analise.marca || analise.fabricante || "");
-    const codigo = normalizar(analise.codigo_original || "");
+    const palavrasIA = [
 
-    const referencias = (analise.referencias || []).map(normalizar);
+        ...palavras(analise.tipo_peca),
+
+        ...palavras(analise.nome_comercial),
+
+        ...palavras(analise.descricao),
+
+        ...palavras(analise.categoria)
+
+    ];
+
+    const codigoIA = normalizar(
+        analise.codigo_original || ""
+    );
+
+    const refsIA =
+        (analise.referencias || []).map(normalizar);
 
     for (const produto of catalogo) {
 
         let score = 0;
 
-        const nomeProduto = normalizar(produto.nome);
-        const marcaProduto = normalizar(produto.marca);
-        const categoriaProduto = normalizar(produto.categoria);
-        const descricaoProduto = normalizar(produto.descricao);
+        const textoProduto = [
 
-        const codigoProduto = normalizar(
-            produto.codigo_original || ""
-        );
+            produto.nome,
 
-        const refsProduto =
-            (produto.referencias || []).map(normalizar);
+            produto.descricao,
 
-        // código OEM
+            produto.marca,
 
-        if (codigo && codigoProduto === codigo)
-            score += 1000;
+            produto.categoria
 
-        // referências OEM
+        ].join(" ");
 
-        for (const ref of referencias) {
+        const palavrasProduto = palavras(textoProduto);
 
-            if (
-                refsProduto.includes(ref) ||
-                codigoProduto === ref
-            ) {
-                score += 900;
+        // procura palavras
+
+        for (const palavra of palavrasIA) {
+
+            if (palavrasProduto.includes(palavra)) {
+
+                score += 40;
+
             }
 
         }
 
-        // tipo da peça
-
-        if (tipo && nomeProduto.includes(tipo))
-            score += 300;
-
-        // nome comercial
-
-        if (nome && nomeProduto.includes(nome))
-            score += 250;
-
-        // categoria
+        // código OEM
 
         if (
-            categoria &&
-            categoriaProduto.includes(categoria)
-        )
-            score += 150;
+
+            codigoIA &&
+
+            normalizar(produto.codigo_original) === codigoIA
+
+        ) {
+
+            score += 1000;
+
+        }
+
+        // referências
+
+        for (const ref of refsIA) {
+
+            if (
+
+                (produto.referencias || [])
+
+                    .map(normalizar)
+
+                    .includes(ref)
+
+            ) {
+
+                score += 800;
+
+            }
+
+        }
 
         // marca
 
         if (
-            marca &&
-            marcaProduto.includes(marca)
-        )
-            score += 100;
 
-        // descrição
+            analise.marca &&
 
-        if (
-            tipo &&
-            descricaoProduto.includes(tipo)
-        )
-            score += 50;
+            normalizar(produto.marca)
+
+                .includes(normalizar(analise.marca))
+
+        ) {
+
+            score += 150;
+
+        }
 
         if (score > 0) {
 
             resultados.push({
+
                 ...produto,
+
                 score
+
             });
 
         }
 
     }
 
-    resultados.sort((a, b) => b.score - a.score);
+    resultados.sort(
+
+        (a, b) => b.score - a.score
+
+    );
 
     return resultados.slice(0, 5);
 
 }
-
 function normalizarResultado(resultado = {}) {
 
   return {
