@@ -180,21 +180,14 @@ Formato:
 
     resultado = normalizarResultado(resultado);
 
-    const produtos = buscarProdutos(resultado);
-    const produto = produtos.length ? produtos[0] : null;
-    
-    return res.status(200).json({
+   const produtos = buscarProdutos(resultado);
 
-    status:"ok",
-
-    analise:resultado,
-
-    produto,
-
+return Response.json({
+    status: "ok",
+    analise: resultado,
+    produto: produtos.length ? produtos[0] : null,
     produtos,
-
-    score:resultado.nivel_confianca
-
+    score: produtos.length ? produtos[0].score : 0
 });
     
   } catch (erro) {
@@ -229,90 +222,89 @@ function normalizar(texto) {
 }
 function buscarProdutos(analise) {
 
-    const texto = normalizar(
-        [
-            analise.tipo_peca,
-            analise.categoria,
-            analise.descricao,
-            ...(analise.referencias || [])
-        ].join(" ")
-    );
-
-    const marcaIA = normalizar(analise.marca || "");
-    const codigoIA = normalizar(
-    analise.codigo_original || ""
-);
-
     const resultados = [];
+
+    const tipo = normalizar(analise.tipo_peca || "");
+    const nome = normalizar(analise.nome_comercial || "");
+    const categoria = normalizar(analise.categoria || "");
+    const marca = normalizar(analise.marca || analise.fabricante || "");
+    const codigo = normalizar(analise.codigo_original || "");
+
+    const referencias = (analise.referencias || []).map(normalizar);
 
     for (const produto of catalogo) {
 
         let score = 0;
 
-        const nome = normalizar(produto.nome || "");
-        const categoria = normalizar(produto.categoria || "");
-        const marca = normalizar(produto.marca || "");
-        const codigo = normalizar(
-    produto.codigo_original ||
-    produto.codigo ||
-    produto.referencia ||
-    ""
-);
-        // Código original
-        if (codigoIA && codigo === codigoIA)
+        const nomeProduto = normalizar(produto.nome);
+        const marcaProduto = normalizar(produto.marca);
+        const categoriaProduto = normalizar(produto.categoria);
+        const descricaoProduto = normalizar(produto.descricao);
+
+        const codigoProduto = normalizar(
+            produto.codigo_original || ""
+        );
+
+        const refsProduto =
+            (produto.referencias || []).map(normalizar);
+
+        // código OEM
+
+        if (codigo && codigoProduto === codigo)
             score += 1000;
 
-        // Referências
-        const referencias = Array.isArray(produto.referencias)
-    ? produto.referencias
-    : [];
+        // referências OEM
 
-for (const ref of referencias) {
+        for (const ref of referencias) {
 
-    const r = normalizar(ref);
-
-    if (!r)
-        continue;
-
-    if (codigoIA && r === codigoIA)
-        score += 800;
-
-    if (texto.includes(r))
-        score += 300;
-}
-
-        // Marca
-
-        if (marcaIA && marca === marcaIA)
-            score += 200;
-
-        // Categoria
-
-        if (categoria && texto.includes(categoria))
-            score += 150;
-
-        // Nome
-
-        const palavras = nome.split(" ");
-
-        for (const palavra of palavras) {
-
-            if (palavra.length < 4)
-                continue;
-
-            if (texto.includes(palavra))
-                score += 40;
+            if (
+                refsProduto.includes(ref) ||
+                codigoProduto === ref
+            ) {
+                score += 900;
+            }
 
         }
+
+        // tipo da peça
+
+        if (tipo && nomeProduto.includes(tipo))
+            score += 300;
+
+        // nome comercial
+
+        if (nome && nomeProduto.includes(nome))
+            score += 250;
+
+        // categoria
+
+        if (
+            categoria &&
+            categoriaProduto.includes(categoria)
+        )
+            score += 150;
+
+        // marca
+
+        if (
+            marca &&
+            marcaProduto.includes(marca)
+        )
+            score += 100;
+
+        // descrição
+
+        if (
+            tipo &&
+            descricaoProduto.includes(tipo)
+        )
+            score += 50;
 
         if (score > 0) {
 
             resultados.push({
-
                 ...produto,
-
                 score
-
             });
 
         }
@@ -324,6 +316,7 @@ for (const ref of referencias) {
     return resultados.slice(0, 5);
 
 }
+
 function normalizarResultado(resultado = {}) {
 
   return {
