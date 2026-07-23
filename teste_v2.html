@@ -107,6 +107,29 @@ leitor.onload=async()=>{
 
 document.getElementById("preview").src=leitor.result;
 
+const resposta = await fetch("/api/analisar_v2",{
+
+    method:"POST",
+
+    headers:{
+        "Content-Type":"application/json"
+    },
+
+    body:JSON.stringify({
+
+        imagem:leitor.result
+
+    })
+
+});
+
+const json = await resposta.json();
+
+console.log(json);
+
+document.getElementById("resultado").textContent =
+JSON.stringify(json,null,2);
+  
 };
 
 leitor.readAsDataURL(foto.files[0]);
