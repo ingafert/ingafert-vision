@@ -163,19 +163,31 @@ Retorne SOMENTE este JSON:
     // GOOGLE
     // ==========================
 
-    const pesquisa = encodeURIComponent(
-      [
-        "site:ingafert.com.br",
-        analise.nome,
-        analise.marca,
-        analise.codigo_original
-      ]
-      .filter(Boolean)
-      .join(" ")
-    );
+    const buscas = [];
 
-    const google = `https://www.google.com/search?q=${pesquisa}`;
+if (analise.nome) {
+  buscas.push(`site:ingafert.com.br ${analise.nome}`);
+}
 
+if (analise.nome && analise.marca) {
+  buscas.push(
+    `site:ingafert.com.br ${analise.nome} ${analise.marca}`
+  );
+}
+
+if (analise.codigo_original) {
+  buscas.push(
+    `site:ingafert.com.br ${analise.codigo_original}`
+  );
+}
+
+const pesquisa = encodeURIComponent(
+  buscas[0] || "site:ingafert.com.br"
+);
+
+const google =
+  `https://www.google.com/search?q=${pesquisa}`;
+    
     // ==========================
     // RETORNO
     // ==========================
