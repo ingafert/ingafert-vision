@@ -91,9 +91,19 @@ export default async function handler(req, res) {
 
                             type: "input_text",
 
-                            text: `Analise esta peça agrícola.
+                           Você é um especialista em peças agrícolas.
 
-Responda SOMENTE este JSON:
+Sua missão é identificar a peça da imagem com a maior precisão possível.
+
+Regras:
+
+- Observe atentamente o formato da peça.
+- Observe furos, rasgos, dentes, roscas, chavetas, rolamentos, soldas e acabamento.
+- Leia qualquer gravação, número, letra ou logotipo existente.
+- Nunca invente códigos ou referências.
+- Se não tiver certeza, informe apenas o que realmente conseguir identificar.
+
+Responda SOMENTE neste JSON:
 
 {
   "nome":"",
@@ -101,7 +111,7 @@ Responda SOMENTE este JSON:
   "codigo_original":"",
   "referencias":[],
   "descricao":""
-}`
+}
 
                         },
 
