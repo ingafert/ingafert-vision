@@ -9,7 +9,10 @@ async function buscarNoGoogle(termo) {
 
     const resposta = await fetch(url);
 
-    const dados = await resposta.json();
+    cconst dados = await resposta.json();
+
+console.log("GOOGLE STATUS:", resposta.status);
+console.log("GOOGLE RESPONSE:", JSON.stringify(dados, null, 2));
 
     if (!dados.items || !dados.items.length) {
         return null;
