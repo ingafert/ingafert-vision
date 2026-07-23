@@ -52,7 +52,65 @@ export default async function handler(req, res) {
 
         }
 
-        console.log("Imagem recebida.");
+       const resposta = await openai.responses.create({
+
+    model: "gpt-4.1",
+
+    input: [
+
+        {
+
+            role: "user",
+
+            content: [
+
+                {
+
+                    type: "input_text",
+
+                    text: `
+Analise esta imagem de uma peça agrícola.
+
+Responda SOMENTE um JSON.
+
+{
+    "nome":"",
+    "marca":"",
+    "codigo_original":"",
+    "referencias":[],
+    "descricao":""
+}
+`
+
+                },
+
+                {
+
+                    type: "input_image",
+
+                    image_url: imagem,
+
+                    detail: "high"
+
+                }
+
+            ]
+
+        }
+
+    ]
+
+});
+
+console.log(resposta.output_text);
+
+return res.status(200).json({
+
+    status: "ok",
+
+    resposta: resposta.output_text
+
+});
 
     } catch (erro) {
 
