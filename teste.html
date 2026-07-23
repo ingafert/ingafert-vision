@@ -1,179 +1,79 @@
-<!DOCTYPE html>
-<html lang="pt-BR">
-<head>
+async function analisar() {
 
-<meta charset="UTF-8">
+    if (!foto.files.length) {
+        alert("Escolha uma imagem.");
+        return;
+    }
 
-<title>Ingafert Vision</title>
+    const reader = new FileReader();
 
-<style>
+    reader.onload = async () => {
 
-body{
-    font-family:Arial;
-    max-width:900px;
-    margin:40px auto;
-    background:#f4f4f4;
-}
+        try {
 
-.card{
-    background:#fff;
-    padding:25px;
-    border-radius:12px;
-    box-shadow:0 3px 12px rgba(0,0,0,.15);
-}
+            const resposta = await fetch("/api/analisar", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({
+                    imagem: reader.result
+                })
+            });
 
-button{
-    padding:12px 25px;
-    background:#0b7d34;
-    color:#fff;
-    border:none;
-    border-radius:6px;
-    cursor:pointer;
-    font-size:16px;
-}
+            console.log("Status:", resposta.status);
 
-button:hover{
-    background:#095e27;
-}
+            const texto = await resposta.text();
 
-img{
-    max-width:350px;
-    margin-top:20px;
-    border-radius:8px;
-}
+            console.log("Resposta:", texto);
 
-pre{
-    background:#222;
-    color:#0f0;
-    padding:15px;
-    border-radius:8px;
-    overflow:auto;
-}
+            const json = JSON.parse(texto);
 
-.produto{
+            document.getElementById("resultado").textContent =
+                JSON.stringify(json, null, 2);
 
-    margin-top:20px;
-    padding:20px;
-    background:#eef8ee;
-    border-left:5px solid #0b7d34;
-    display:none;
+            if (json.produtos && json.produtos.length) {
 
-}
+                document.getElementById("produto").style.display = "block";
 
-</style>
+                let html = "<h2>Produtos Encontrados</h2>";
 
-</head>
+                json.produtos.forEach(produto => {
 
-<body>
+                    html += `
+                    <div style="border:1px solid #ddd;padding:15px;margin-bottom:15px;border-radius:8px">
+                        <h3>${produto.nome}</h3>
+                        <p><b>Marca:</b> ${produto.marca}</p>
+                        <p><b>Score:</b> ${produto.score}</p>
 
-<div class="card">
+                        ${
+                            produto.url
+                            ? `<a href="${produto.url}" target="_blank">
+                                    <button>Ver Produto</button>
+                               </a>`
+                            : "<i>Sem URL cadastrada</i>"
+                        }
 
-<h2>Ingafert Vision</h2>
+                    </div>
+                    `;
 
-<input type="file" id="foto">
+                });
 
-<br><br>
+                document.getElementById("produto").innerHTML = html;
 
-<button onclick="analisar()">
+            }
 
-Analisar Peça
+        } catch (erro) {
 
-</button>
+            console.error(erro);
 
-<br>
+            document.getElementById("resultado").textContent =
+                erro.stack || erro.message;
 
-<img id="preview">
+        }
 
-<div id="produto" class="produto"></div>
+    };
 
-<pre id="resultado"></pre>
-
-</div>
-
-<script>
-
-const foto=document.getElementById("foto");
-const preview=document.getElementById("preview");
-
-foto.onchange=()=>{
-
-const reader=new FileReader();
-
-reader.onload=e=>{
-
-preview.src=e.target.result;
+    reader.readAsDataURL(foto.files[0]);
 
 }
-
-reader.readAsDataURL(foto.files[0]);
-
-}
-
-async function analisar(){
-
-const reader=new FileReader();
-
-reader.onload=async()=>{
-
-const resposta=await fetch("/api/analisar",{
-
-method:"POST",
-
-headers:{
-"Content-Type":"application/json"
-},
-
-body:JSON.stringify({
-
-imagem:reader.result
-
-})
-
-});
-
-const json=await resposta.json();
-
-document.getElementById("resultado").textContent=
-JSON.stringify(json,null,2);
-
-if(json.produtos && json.produtos.length){
-
-    document.getElementById("produto").style.display="block";
-
-    let html="<h2>Produtos Encontrados</h2>";
-
-    json.produtos.forEach(produto=>{
-
-        html += `
-
-        <div style="border:1px solid #ddd;padding:15px;margin-bottom:15px;border-radius:8px">
-
-            <h3>${produto.nome}</h3>
-
-            <p><b>Marca:</b> ${produto.marca}</p>
-
-            <p><b>Score:</b> ${produto.score}</p>
-
-            <a href="${produto.url}" target="_blank">
-                <button>Ver Produto</button>
-            </a>
-
-        </div>
-
-        `;
-
-    });
-
-    document.getElementById("produto").innerHTML = html;
-
-}
-}
-
-reader.readAsDataURL(foto.files[0]);
-
-}
-
-</script>
-
-</body>
-</html>
