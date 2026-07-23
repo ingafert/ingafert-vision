@@ -251,19 +251,18 @@ function buscarProdutos(analise) {
     console.log("Produtos no catálogo:", catalogo.length);
 
     const palavrasIA = [
-    
-      console.log("Palavras IA:", palavrasIA);
-  
-        ...palavras(analise.tipo_peca),
 
-        ...palavras(analise.nome_comercial),
+    ...palavras(analise.tipo_peca),
 
-        ...palavras(analise.descricao),
+    ...palavras(analise.nome_comercial),
 
-        ...palavras(analise.categoria)
+    ...palavras(analise.descricao),
 
-    ];
+    ...palavras(analise.categoria)
 
+];
+
+console.log("Palavras IA:", palavrasIA);
     const codigoIA = normalizar(
         analise.codigo_original || ""
     );
@@ -277,39 +276,43 @@ function buscarProdutos(analise) {
 
         const textoProduto = [
 
-            produto.nome,
+    produto.nome || "",
 
-            produto.descricao,
+    produto.descricao || "",
 
-            produto.marca,
+    produto.marca || "",
 
-            produto.categoria
+    produto.categoria || ""
 
-            if (produto.nome.toLowerCase().includes("flange")) {
+].join(" ");
+
+if (
+    produto.nome &&
+    produto.nome.toLowerCase().includes("flange")
+) {
     console.log("Produto flange:", produto.nome);
 }
-
-        ].join(" ");
-
         const palavrasProduto = palavras(textoProduto);
 
         // procura palavras
 
         for (const palavra of palavrasIA) {
 
-           for (const palavraProduto of palavrasProduto) {
+    for (const palavraProduto of palavrasProduto) {
 
-    if (
-        palavraProduto.includes(palavra) ||
-        palavra.includes(palavraProduto)
-    ) {
+        if (
+            palavraProduto.includes(palavra) ||
+            palavra.includes(palavraProduto)
+        ) {
 
-        score += 40;
-        break;
+            score += 40;
+            break;
+
+        }
 
     }
 
-        }
+}
 
         // código OEM
 
