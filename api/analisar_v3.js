@@ -116,8 +116,6 @@ Responda SOMENTE neste JSON:
 
 },
 
-                        },
-
                         {
 
                             type: "input_image",
