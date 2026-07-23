@@ -237,6 +237,74 @@ function buscarProdutos(analise) {
 
         const nome = (produto.nome || "").toUpperCase();
 
+        // ================================
+// FILTRO INTELIGENTE POR TIPO
+// ================================
+
+const tipo = (
+    analise.tipo_peca +
+    " " +
+    analise.nome_comercial
+).toUpperCase();
+
+if (
+    tipo.includes("FACA") ||
+    tipo.includes("LAMINA") ||
+    tipo.includes("LÂMINA") ||
+    tipo.includes("SEGMENTO")
+) {
+
+    if (
+        !nome.includes("FACA") &&
+        !nome.includes("LAMINA") &&
+        !nome.includes("LÂMINA") &&
+        !nome.includes("SEGMENTO")
+    ) {
+        continue;
+    }
+
+}
+
+if (
+    tipo.includes("ROLAMENTO")
+) {
+
+    if (!nome.includes("ROLAMENTO")) {
+        continue;
+    }
+
+}
+
+if (
+    tipo.includes("POLIA")
+) {
+
+    if (!nome.includes("POLIA")) {
+        continue;
+    }
+
+}
+
+if (
+    tipo.includes("ENGRENAGEM")
+) {
+
+    if (!nome.includes("ENGRENAGEM")) {
+        continue;
+    }
+
+}
+
+if (
+    tipo.includes("CORRENTE")
+) {
+
+    if (!nome.includes("CORRENTE")) {
+        continue;
+    }
+
+}
+      
         // Código original
         if (
             analise.codigo_original &&
