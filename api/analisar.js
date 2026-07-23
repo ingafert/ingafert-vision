@@ -215,230 +215,89 @@ Formato:
 
 function buscarProdutos(analise) {
 
-    if (!analise) return [];
+    const texto = normalizar(
+        [
+            analise.tipo,
+            analise.categoria,
+            analise.descricao,
+            ...(analise.referencias || [])
+        ].join(" ")
+    );
 
-    if (!catalogo.length) return [];
+    const marcaIA = normalizar(analise.marca || "");
+    const codigoIA = normalizar(analise.codigo || "");
 
     const resultados = [];
-
-    const sinonimos = {
-        faca: ["LAMINA", "LÂMINA", "SEGMENTO"],
-        lamina: ["FACA", "LÂMINA", "SEGMENTO"],
-        "lâmina": ["FACA", "LAMINA", "SEGMENTO"],
-        segmento: ["FACA", "LAMINA", "LÂMINA"],
-        barra: ["PLATAFORMA"],
-        plataforma: ["BARRA"],
-        corte: ["FACA", "LAMINA", "LÂMINA", "SEGMENTO"]
-    };
 
     for (const produto of catalogo) {
 
         let score = 0;
 
-        const nome = (produto.nome || "").toUpperCase();
-
-        // ================================
-// FILTRO INTELIGENTE POR TIPO
-// ================================
-
-const tipo = (
-    analise.tipo_peca +
-    " " +
-    analise.nome_comercial
-).toUpperCase();
-
-if (
-    tipo.includes("FACA") ||
-    tipo.includes("LAMINA") ||
-    tipo.includes("LÂMINA") ||
-    tipo.includes("SEGMENTO")
-) {
-
-    if (
-        !nome.includes("FACA") &&
-        !nome.includes("LAMINA") &&
-        !nome.includes("LÂMINA") &&
-        !nome.includes("SEGMENTO")
-    ) {
-        continue;
-    }
-
-}
-
-if (
-    tipo.includes("ROLAMENTO")
-) {
-
-    if (!nome.includes("ROLAMENTO")) {
-        continue;
-    }
-
-}
-
-if (
-    tipo.includes("POLIA")
-) {
-
-    if (!nome.includes("POLIA")) {
-        continue;
-    }
-
-}
-
-if (
-    tipo.includes("ENGRENAGEM")
-) {
-
-    if (!nome.includes("ENGRENAGEM")) {
-        continue;
-    }
-
-}
-
-if (
-    tipo.includes("CORRENTE")
-) {
-
-    if (!nome.includes("CORRENTE")) {
-        continue;
-    }
-
-}
-      
+        const nome = normalizar(produto.nome || "");
+        const categoria = normalizar(produto.categoria || "");
+        const marca = normalizar(produto.marca || "");
+        const codigo = normalizar(
+    produto.codigo_original ||
+    produto.codigo ||
+    produto.referencia ||
+    ""
+);
         // Código original
-        if (
-            analise.codigo_original &&
-            produto.codigo_original &&
-            analise.codigo_original.toUpperCase() === produto.codigo_original.toUpperCase()
-        ) {
-            score += 300;
-        }
+        if (codigoIA && codigo === codigoIA)
+            score += 1000;
 
         // Referências
-        if (
-            Array.isArray(analise.referencias) &&
-            Array.isArray(produto.referencias)
-        ) {
+        const referencias = Array.isArray(produto.referencias)
+    ? produto.referencias
+    : [];
 
-            for (const ref of analise.referencias) {
+for (const ref of referencias) {
 
-                if (
-                    produto.referencias.some(r =>
-                        String(r).trim().toUpperCase() ===
-                        String(ref).trim().toUpperCase()
-                    )
-                ) {
-                    score += 200;
-                }
+    const r = normalizar(ref);
 
-            }
+    if (!r)
+        continue;
 
-        }
+    if (codigoIA && r === codigoIA)
+        score += 800;
 
-        // Nome comercial
-        if (analise.nome_comercial) {
-
-            const palavras = analise.nome_comercial
-                .toUpperCase()
-                .split(/\s+/);
-
-            for (const palavra of palavras) {
-
-                if (palavra.length < 3) continue;
-
-                if (nome.includes(palavra)) {
-                    score += 25;
-                }
-
-                const lista = sinonimos[palavra.toLowerCase()];
-
-                if (lista) {
-
-                    for (const s of lista) {
-
-                        if (nome.includes(s)) {
-                            score += 20;
-                        }
-
-                    }
-
-                }
-
-            }
-
-        }
-
-        // Tipo da peça
-        if (analise.tipo_peca) {
-
-            const palavras = analise.tipo_peca
-                .toUpperCase()
-                .split(/\s+/);
-
-            for (const palavra of palavras) {
-
-                if (palavra.length < 3) continue;
-
-                if (nome.includes(palavra)) {
-                    score += 20;
-                }
-
-            }
-
-        }
+    if (texto.includes(r))
+        score += 300;
+}
 
         // Marca
-        if (
-            analise.marca &&
-            produto.marca &&
-            analise.marca.toUpperCase() === produto.marca.toUpperCase()
-        ) {
-            score += 60;
-        }
+
+        if (marcaIA && marca === marcaIA)
+            score += 200;
 
         // Categoria
-        if (
-            analise.categoria &&
-            produto.categoria &&
-            produto.categoria.toUpperCase().includes(
-                analise.categoria.toUpperCase()
-            )
-        ) {
-            score += 40;
-        }
 
-        // Penalização
-        if (
-            nome.includes("ROLAMENTO") ||
-            nome.includes("RETENTOR") ||
-            nome.includes("BUCHA") ||
-            nome.includes("PARAFUSO")
-        ) {
-            score -= 40;
-        }
+        if (categoria && texto.includes(categoria))
+            score += 150;
 
-        // Prioridade para facas
-        if (
-            nome.includes("FACA") ||
-            nome.includes("LAMINA") ||
-            nome.includes("LÂMINA") ||
-            nome.includes("SEGMENTO")
-        ) {
-            score += 50;
+        // Nome
+
+        const palavras = nome.split(" ");
+
+        for (const palavra of palavras) {
+
+            if (palavra.length < 4)
+                continue;
+
+            if (texto.includes(palavra))
+                score += 40;
+
         }
 
         if (score > 0) {
 
             resultados.push({
-    id: produto.id || null,
-    nome: produto.nome,
-    marca: produto.marca,
-    categoria: produto.categoria,
-    codigo_original: produto.codigo_original,
-    referencias: produto.referencias || [],
-    imagem: produto.imagem || "",
-    score
-});
+
+                ...produto,
+
+                score
+
+            });
 
         }
 
@@ -446,7 +305,7 @@ if (
 
     resultados.sort((a, b) => b.score - a.score);
 
-    return resultados.slice(0, 3);
+    return resultados.slice(0, 5);
 
 }
 function normalizarResultado(resultado = {}) {
