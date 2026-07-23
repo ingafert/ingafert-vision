@@ -192,15 +192,17 @@ const google =
     // RETORNO
     // ==========================
 
-    return res.status(200).json({
+   return res.status(200).json({
 
-      status: "ok",
+    status: "ok",
 
-      analise,
+    analise,
 
-      google
+    buscas,
 
-    });
+    google
+
+});
 
   } catch (erro) {
 
