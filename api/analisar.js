@@ -248,8 +248,12 @@ function buscarProdutos(analise) {
 
     const resultados = [];
 
-    const palavrasIA = [
+    console.log("Produtos no catálogo:", catalogo.length);
 
+    const palavrasIA = [
+    
+      console.log("Palavras IA:", palavrasIA);
+  
         ...palavras(analise.tipo_peca),
 
         ...palavras(analise.nome_comercial),
@@ -281,6 +285,10 @@ function buscarProdutos(analise) {
 
             produto.categoria
 
+            if (produto.nome.toLowerCase().includes("flange")) {
+    console.log("Produto flange:", produto.nome);
+}
+
         ].join(" ");
 
         const palavrasProduto = palavras(textoProduto);
@@ -289,11 +297,17 @@ function buscarProdutos(analise) {
 
         for (const palavra of palavrasIA) {
 
-            if (palavrasProduto.includes(palavra)) {
+           for (const palavraProduto of palavrasProduto) {
 
-                score += 40;
+    if (
+        palavraProduto.includes(palavra) ||
+        palavra.includes(palavraProduto)
+    ) {
 
-            }
+        score += 40;
+        break;
+
+    }
 
         }
 
@@ -367,6 +381,11 @@ function buscarProdutos(analise) {
 
     );
 
+    console.log("Resultados encontrados:", resultados.length);
+
+if (resultados.length) {
+    console.log(resultados.slice(0, 5));
+}
     return resultados.slice(0, 5);
 
 }
