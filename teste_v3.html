@@ -128,8 +128,17 @@ async function analisar(){
 
         });
 
-        const json=await resposta.json();
+       const texto = await resposta.text();
 
+console.log(texto);
+
+if (!resposta.ok) {
+    document.getElementById("resultado").innerHTML =
+        "<pre>" + texto + "</pre>";
+    return;
+}
+
+const json = JSON.parse(texto);
         if(json.status!="ok"){
 
             document.getElementById("resultado").innerHTML=
