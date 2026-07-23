@@ -430,9 +430,15 @@ if (
         if (score > 0) {
 
             resultados.push({
-                ...produto,
-                score
-            });
+    id: produto.id || null,
+    nome: produto.nome,
+    marca: produto.marca,
+    categoria: produto.categoria,
+    codigo_original: produto.codigo_original,
+    referencias: produto.referencias || [],
+    imagem: produto.imagem || "",
+    score
+});
 
         }
 
