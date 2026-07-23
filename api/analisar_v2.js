@@ -1,4 +1,6 @@
 import OpenAI from "openai";
+const GOOGLE_API_KEY = process.env.GOOGLE_API_KEY;
+const GOOGLE_CX = process.env.GOOGLE_CX;
 
 const openai = new OpenAI({
     apiKey: process.env.OPENAI_API_KEY
