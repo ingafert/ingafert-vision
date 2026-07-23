@@ -125,6 +125,11 @@ const resposta = await fetch("/api/analisar_v2",{
 
 const json = await resposta.json();
 
+console.log("ANÁLISE");
+console.log(json.analise);
+
+console.log("PRODUTO");
+console.log(json.produto);
 console.log(json);
 
 document.getElementById("resultado").textContent =
