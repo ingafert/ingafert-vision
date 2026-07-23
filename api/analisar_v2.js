@@ -9,34 +9,33 @@ async function buscarNoGoogle(termo) {
 
     const resposta = await fetch(url);
 
-   const dados = await resposta.json();
+    const dados = await resposta.json();
 
-console.log("GOOGLE STATUS:", resposta.status);
-console.log("GOOGLE RESPONSE:", JSON.stringify(dados, null, 2));
     if (!dados.items || !dados.items.length) {
-    return {
-        erro: true,
-        google: dados
-    };
-}
+
+        return {
+            encontrou: false,
+            respostaGoogle: dados
+        };
+
+    }
 
     const item = dados.items[0];
 
     return {
-    erro: false,
-    google: dados,
-    titulo: item.title,
-    url: item.link,
-    descricao: item.snippet,
-    imagem: item.pagemap?.cse_image?.[0]?.src || ""
-};
 
-    return {
+        encontrou: true,
+
+        respostaGoogle: dados,
+
         titulo: item.title,
+
         url: item.link,
+
         descricao: item.snippet,
-        imagem:
-            item.pagemap?.cse_image?.[0]?.src || ""
+
+        imagem: item.pagemap?.cse_image?.[0]?.src || ""
+
     };
 
 }
