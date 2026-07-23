@@ -212,12 +212,26 @@ Formato:
   }
 
 }
+function normalizar(texto) {
 
+    if (texto === null || texto === undefined)
+        return "";
+
+    return texto
+        .toString()
+        .normalize("NFD")
+        .replace(/[\u0300-\u036f]/g, "")
+        .toLowerCase()
+        .replace(/[^a-z0-9 ]/g, " ")
+        .replace(/\s+/g, " ")
+        .trim();
+
+}
 function buscarProdutos(analise) {
 
     const texto = normalizar(
         [
-            analise.tipo,
+            analise.tipo_peca,
             analise.categoria,
             analise.descricao,
             ...(analise.referencias || [])
@@ -225,7 +239,9 @@ function buscarProdutos(analise) {
     );
 
     const marcaIA = normalizar(analise.marca || "");
-    const codigoIA = normalizar(analise.codigo || "");
+    const codigoIA = normalizar(
+    analise.codigo_original || ""
+);
 
     const resultados = [];
 
