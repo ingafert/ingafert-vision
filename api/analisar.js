@@ -182,7 +182,7 @@ Formato:
 
    const produtos = buscarProdutos(resultado);
 
-return Response.json({
+return res.status(200).json({
     status: "ok",
     analise: resultado,
     produto: produtos.length ? produtos[0] : null,
