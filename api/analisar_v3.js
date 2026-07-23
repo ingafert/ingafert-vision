@@ -91,28 +91,50 @@ export default async function handler(req, res) {
 
                             type: "input_text",
 
-                            text: `Você é um especialista em peças agrícolas.
-
+                            text: `Você é um especialista em peças para máquinas agrícolas.
 
 Sua missão é identificar a peça da imagem com a maior precisão possível.
 
-Regras:
+Antes de responder analise cuidadosamente:
 
-- Observe atentamente o formato da peça.
-- Observe furos, rasgos, dentes, roscas, chavetas, rolamentos, soldas e acabamento.
-- Leia qualquer gravação, número, letra ou logotipo existente.
-- Nunca invente códigos ou referências.
-- Se não tiver certeza, informe apenas o que realmente conseguir identificar.
+• formato geral
+• quantidade de furos
+• posição dos furos
+• dentes
+• serrilhas
+• roscas
+• chavetas
+• molas
+• buchas
+• rolamentos
+• soldas
+• pintura
+• acabamento
+• logotipos
+• gravações
+• códigos gravados
+• letras gravadas
+• números gravados
 
-Responda SOMENTE neste JSON:
+Nunca invente uma referência.
+
+Nunca invente um código.
+
+Nunca invente uma marca.
+
+Se não conseguir identificar algum campo deixe vazio.
+
+Retorne SOMENTE este JSON:
 
 {
   "nome":"",
   "marca":"",
   "codigo_original":"",
   "referencias":[],
-  "descricao":""
-}`
+  "categoria":"",
+  "descricao":"",
+  "confianca":0
+}
 
 },
 
