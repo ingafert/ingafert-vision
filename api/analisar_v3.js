@@ -187,6 +187,17 @@ const pesquisa = encodeURIComponent(
 
 const google =
   `https://www.google.com/search?q=${pesquisa}`;
+
+    const produto = {
+  nome: analise.nome,
+  marca: analise.marca,
+  codigo: analise.codigo_original,
+  categoria: analise.categoria,
+  descricao: analise.descricao,
+  confianca: analise.confianca,
+  imagem: "",
+  url: google
+};
     
     // ==========================
     // RETORNO
@@ -199,6 +210,8 @@ const google =
     analise,
 
     buscas,
+
+    produto,
 
     google
 
