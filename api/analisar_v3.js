@@ -115,8 +115,23 @@ Retorne SOMENTE este JSON:
   "referencias":[],
   "categoria":"",
   "descricao":"",
-  "confianca":0
+  "confianca":0,
+  "buscas":[]
 }
+Além do nome principal, gere entre 5 e 10 termos comerciais utilizados no Brasil para procurar esta peça.
+
+Os termos devem ser curtos.
+
+Exemplo:
+
+"buscas":[
+"lâmina de corte",
+"faca barra de corte",
+"lâmina barra de corte",
+"barra de corte",
+"faca plataforma"
+]
+
 }
 `;
 
@@ -159,26 +174,29 @@ Retorne SOMENTE este JSON:
 
     const analise = JSON.parse(texto);
 
+    const buscas = Array.isArray(analise.buscas)
+    ? analise.buscas
+    : [];
+
     // ==========================
     // GOOGLE
     // ==========================
 
-    const buscas = [];
+   const listaBuscas = [];
 
-if (analise.nome) {
-  buscas.push(`site:ingafert.com.br ${analise.nome}`);
-}
+if (analise.nome)
+    listaBuscas.push(analise.nome);
 
-if (analise.nome && analise.marca) {
-  buscas.push(
-    `site:ingafert.com.br ${analise.nome} ${analise.marca}`
-  );
-}
+if (analise.codigo_original)
+    listaBuscas.push(analise.codigo_original);
 
-if (analise.codigo_original) {
-  buscas.push(
-    `site:ingafert.com.br ${analise.codigo_original}`
-  );
+if (analise.marca)
+    listaBuscas.push(analise.marca);
+
+buscas.forEach(item => {
+    if (item && !listaBuscas.includes(item))
+        listaBuscas.push(item);
+});
 }
 
 const pesquisa = encodeURIComponent(
@@ -195,8 +213,8 @@ const busca = [
 
 const urlBusca =
     "https://www.ingafert.com.br/busca?q=" +
-    encodeURIComponent(busca);
-
+    encodeURIComponent(listaBuscas[0] || "");
+  
 const produto = {
     nome: analise.nome,
     marca: analise.marca,
@@ -217,6 +235,8 @@ const produto = {
     status: "ok",
 
     analise,
+
+    buscas: listaBuscas,
 
     produto,
 
