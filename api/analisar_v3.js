@@ -4,6 +4,27 @@ const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY
 });
 
+const SITE = "https://www.ingafert.com.br";
+async function buscarProduto(termo) {
+
+    const url =
+        SITE + "/busca?q=" + encodeURIComponent(termo);
+
+    const html = await fetch(url).then(r => r.text());
+
+    const link = html.match(/href="([^"]+)"/i);
+
+    const imagem = html.match(/https:\/\/images\.yampi\.me[^"' ]+\.(jpg|jpeg|png|webp)/i);
+
+    return {
+
+        url: link ? link[1] : "",
+
+        foto: imagem ? imagem[0] : ""
+
+    };
+
+}
 export default async function handler(req, res) {
 
   // ==========================
@@ -220,6 +241,15 @@ const urlBusca =
         analise.nome ||
         ""
     );
+
+    const encontrado =
+    await buscarProduto(
+        buscas[0] ||
+        buscas[1] ||
+        buscas[2] ||
+        analise.nome ||
+        ""
+    );
 const produto = {
     nome: analise.nome,
     marca: analise.marca,
@@ -227,8 +257,8 @@ const produto = {
     categoria: analise.categoria,
     descricao: analise.descricao,
     confianca: analise.confianca,
-    foto: "",
-    url: urlBusca
+    foto: encontrado.foto,
+    url: encontrado.url || urlBusca
 };
     
     // ==========================
