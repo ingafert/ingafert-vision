@@ -213,7 +213,13 @@ const busca = [
 
 const urlBusca =
     "https://www.ingafert.com.br/busca?q=" +
-    encodeURIComponent(listaBuscas[0] || "");
+    encodeURIComponent(
+        buscas[0] ||
+        buscas[1] ||
+        buscas[2] ||
+        analise.nome ||
+        ""
+    );
 const produto = {
     nome: analise.nome,
     marca: analise.marca,
