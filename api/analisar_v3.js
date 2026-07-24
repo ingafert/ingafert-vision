@@ -185,18 +185,27 @@ const pesquisa = encodeURIComponent(
   buscas[0] || "site:ingafert.com.br"
 );
 
-const google =
-  `https://www.google.com/search?q=${pesquisa}`;
+const busca = [
+    analise.nome,
+    analise.codigo_original,
+    analise.marca
+]
+.filter(Boolean)
+.join(" ");
 
-    const produto = {
-  nome: analise.nome,
-  marca: analise.marca,
-  codigo: analise.codigo_original,
-  categoria: analise.categoria,
-  descricao: analise.descricao,
-  confianca: analise.confianca,
-  imagem: "",
-  url: google
+const urlBusca =
+    "https://www.ingafert.com.br/busca?q=" +
+    encodeURIComponent(busca);
+
+const produto = {
+    nome: analise.nome,
+    marca: analise.marca,
+    codigo: analise.codigo_original,
+    categoria: analise.categoria,
+    descricao: analise.descricao,
+    confianca: analise.confianca,
+    imagem: "",
+    url: urlBusca
 };
     
     // ==========================
@@ -209,11 +218,9 @@ const google =
 
     analise,
 
-    buscas,
-
     produto,
 
-    google
+    google: urlBusca
 
 });
 
