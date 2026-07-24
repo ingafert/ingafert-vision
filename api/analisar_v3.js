@@ -197,7 +197,7 @@ buscas.forEach(item => {
     if (item && !listaBuscas.includes(item))
         listaBuscas.push(item);
 });
-}
+
 
 const pesquisa = encodeURIComponent(
   buscas[0] || "site:ingafert.com.br"
@@ -214,7 +214,6 @@ const busca = [
 const urlBusca =
     "https://www.ingafert.com.br/busca?q=" +
     encodeURIComponent(listaBuscas[0] || "");
-  
 const produto = {
     nome: analise.nome,
     marca: analise.marca,
@@ -222,7 +221,7 @@ const produto = {
     categoria: analise.categoria,
     descricao: analise.descricao,
     confianca: analise.confianca,
-    imagem: "",
+    foto: "",
     url: urlBusca
 };
     
