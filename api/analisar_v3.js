@@ -12,15 +12,52 @@ async function buscarProduto(termo) {
 
     const html = await fetch(url).then(r => r.text());
 
-    const link = html.match(/href="([^"]+)"/i);
+    // ==========================
+    // LINK DO PRODUTO
+    // ==========================
 
-    const imagem = html.match(/https:\/\/images\.yampi\.me[^"' ]+\.(jpg|jpeg|png|webp)/i);
+    let link = "";
+
+    const linkMatch = html.match(
+        /href="(https?:\/\/www\.ingafert\.com\.br\/produto\/[^"]+)"/i
+    );
+
+    if (linkMatch) {
+        link = linkMatch[1];
+    }
+
+    // ==========================
+    // FOTO DO PRODUTO
+    // ==========================
+
+    let foto = "";
+
+    const imagens = [
+        ...html.matchAll(
+            /https:\/\/images\.yampi\.me[^"' ]+\.(jpg|jpeg|png|webp)/gi
+        )
+    ];
+
+    for (const img of imagens) {
+
+        const urlImagem = img[0];
+
+        if (
+            !urlImagem.includes("/logo/") &&
+            !urlImagem.includes("placeholder") &&
+            !urlImagem.includes("favicon") &&
+            !urlImagem.includes("icon")
+        ) {
+            foto = urlImagem;
+            break;
+        }
+    }
 
     return {
 
-        url: link ? link[1] : "",
+        url: link,
 
-        foto: imagem ? imagem[0] : ""
+        foto: foto
 
     };
 
