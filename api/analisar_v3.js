@@ -7,57 +7,40 @@ const openai = new OpenAI({
 const SITE = "https://www.ingafert.com.br";
 async function buscarProduto(termo) {
 
-    const url =
+    const buscaUrl =
         SITE + "/busca?q=" + encodeURIComponent(termo);
 
-    const html = await fetch(url).then(r => r.text());
+    const buscaHtml =
+        await fetch(buscaUrl).then(r => r.text());
 
-    // ==========================
-    // LINK DO PRODUTO
-    // ==========================
+    const linkProduto =
+        buscaHtml.match(/href="(https:\/\/www\.ingafert\.com\.br\/produto\/[^"]+)"/i);
 
-    let link = "";
+    if (!linkProduto) {
 
-    const linkMatch = html.match(
-        /href="(https?:\/\/www\.ingafert\.com\.br\/produto\/[^"]+)"/i
-    );
+        return {
 
-    if (linkMatch) {
-        link = linkMatch[1];
+            url: buscaUrl,
+
+            foto: ""
+
+        };
+
     }
 
-    // ==========================
-    // FOTO DO PRODUTO
-    // ==========================
+    const produtoUrl = linkProduto[1];
 
-    let foto = "";
+    const produtoHtml =
+        await fetch(produtoUrl).then(r => r.text());
 
-    const imagens = [
-        ...html.matchAll(
-            /https:\/\/images\.yampi\.me[^"' ]+\.(jpg|jpeg|png|webp)/gi
-        )
-    ];
-
-    for (const img of imagens) {
-
-        const urlImagem = img[0];
-
-        if (
-            !urlImagem.includes("/logo/") &&
-            !urlImagem.includes("placeholder") &&
-            !urlImagem.includes("favicon") &&
-            !urlImagem.includes("icon")
-        ) {
-            foto = urlImagem;
-            break;
-        }
-    }
+    const foto =
+        produtoHtml.match(/https:\/\/images\.yampi\.me[^"' ]+\.(jpg|jpeg|png|webp)/i);
 
     return {
 
-        url: link,
+        url: produtoUrl,
 
-        foto: foto
+        foto: foto ? foto[0] : ""
 
     };
 
