@@ -214,7 +214,46 @@ Exemplo:
     const texto = resposta.output_text.trim();
 
     const analise = JSON.parse(texto);
+ 
+    const fs = require("fs");
+const path = require("path");
 
+const catalogo = JSON.parse(
+    fs.readFileSync(
+        path.join(process.cwd(), "dados", "catalogo.json"),
+        "utf8"
+    )
+);
+
+    const catalogoArray = Array.isArray(catalogo)
+    ? catalogo
+    : Object.values(catalogo);
+    
+    function procurarProduto(analise) {
+
+    const termos = [
+        analise.codigo_original,
+        ...(analise.referencias || []),
+        analise.nome,
+    ]
+    .filter(Boolean)
+    .map(t => String(t).toLowerCase());
+
+   for (const produto of catalogoArray) {
+
+        const texto = JSON.stringify(produto).toLowerCase();
+
+        if (termos.some(t => texto.includes(t))) {
+            return produto;
+        }
+
+    }
+
+    return null;
+
+}
+       const produto = procurarProduto(analise);
+    
     const buscas = Array.isArray(analise.buscas)
     ? analise.buscas
     : [];
