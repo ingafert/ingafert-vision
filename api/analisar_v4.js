@@ -73,6 +73,16 @@ NUNCA deixe campos vazios.
 
 Mesmo que não tenha 100% de certeza, informe a MELHOR hipótese.
 
+IMPORTANTE:
+
+Se existirem referências equivalentes da mesma peça, retorne TODAS.
+
+Inclua códigos John Deere, New Holland, Case, Massey Ferguson, Valtra, JF, Jumil, Baldan e códigos paralelos quando forem equivalentes.
+
+Analise também a aplicação, formato da peça e compatibilidade para descobrir referências equivalentes.
+
+Nunca retorne apenas uma referência se existirem outras compatíveis.
+
 Identifique:
 
 - nome da peça
