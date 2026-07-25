@@ -1,370 +1,174 @@
 import OpenAI from "openai";
-import fs from "fs";
-import path from "path";
+const GOOGLE_API_KEY = process.env.GOOGLE_API_KEY;
+const GOOGLE_CX = process.env.GOOGLE_CX;
 
-const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY
-});
+async function buscarNoGoogle(termo) {
 
-const SITE = "https://www.ingafert.com.br";
-async function buscarProduto(termo) {
+    const url =
+        `https://www.googleapis.com/customsearch/v1?key=${GOOGLE_API_KEY}&cx=${GOOGLE_CX}&q=${encodeURIComponent(termo)}`;
 
-    const buscaUrl =
-        SITE + "/busca?q=" + encodeURIComponent(termo);
+    const resposta = await fetch(url);
 
-    const buscaHtml =
-        await fetch(buscaUrl).then(r => r.text());
+    const dados = await resposta.json();
 
-    const linkProduto =
-        buscaHtml.match(/href="(https:\/\/www\.ingafert\.com\.br\/produto\/[^"]+)"/i);
-
-    if (!linkProduto) {
+    if (!dados.items || !dados.items.length) {
 
         return {
-
-            url: buscaUrl,
-
-            foto: ""
-
+            encontrou: false,
+            respostaGoogle: dados
         };
 
     }
 
-    const produtoUrl = linkProduto[1];
-
-    const produtoHtml =
-        await fetch(produtoUrl).then(r => r.text());
-
-    const foto =
-        produtoHtml.match(/https:\/\/images\.yampi\.me[^"' ]+\.(jpg|jpeg|png|webp)/i);
+    const item = dados.items[0];
 
     return {
 
-        url: produtoUrl,
+        encontrou: true,
 
-        foto: foto ? foto[0] : ""
+        respostaGoogle: dados,
+
+        titulo: item.title,
+
+        url: item.link,
+
+        descricao: item.snippet,
+
+        imagem: item.pagemap?.cse_image?.[0]?.src || ""
 
     };
 
 }
+
+const openai = new OpenAI({
+    apiKey: process.env.OPENAI_API_KEY
+});
+
 export default async function handler(req, res) {
 
-  // ==========================
-  // CORS
-  // ==========================
+    const origin = req.headers.origin || "";
 
-  const origin = req.headers.origin || "";
+    const permitidos = [
+        "https://www.ingafert.com.br",
+        "https://ingafert.com.br",
+        "https://ingafert-vision.vercel.app"
+    ];
 
-  const permitidos = [
-    "https://www.ingafert.com.br",
-    "https://ingafert.com.br",
-    "https://ingafert-vision.vercel.app"
-  ];
-
-  if (permitidos.includes(origin)) {
-    res.setHeader("Access-Control-Allow-Origin", origin);
-  }
-
-  res.setHeader("Access-Control-Allow-Methods", "GET,POST,OPTIONS");
-  res.setHeader("Access-Control-Allow-Headers", "Content-Type");
-
-  if (req.method === "OPTIONS") {
-    return res.status(200).end();
-  }
-
-  // ==========================
-  // TESTE
-  // ==========================
-
-  if (req.method === "GET") {
-    return res.status(200).json({
-      status: "ok",
-      versao: "Ingafert Vision V3"
-    });
-  }
-
-  if (req.method !== "POST") {
-    return res.status(405).json({
-      status: "erro",
-      mensagem: "Método não permitido."
-    });
-  }
-
-  try {
-
-    const { imagem } = req.body;
-
-    if (!imagem) {
-      return res.status(400).json({
-        status: "erro",
-        mensagem: "Imagem não enviada."
-      });
+    if (permitidos.includes(origin)) {
+        res.setHeader("Access-Control-Allow-Origin", origin);
     }
 
-    // ==========================
-    // PROMPT
-    // ==========================
+    res.setHeader(
+        "Access-Control-Allow-Methods",
+        "GET,POST,OPTIONS"
+    );
 
-    const PROMPT = `
-Você é um engenheiro especialista em peças agrícolas.
+    res.setHeader(
+        "Access-Control-Allow-Headers",
+        "Content-Type"
+    );
 
-Sua função é identificar exatamente a peça mostrada.
+    if (req.method === "OPTIONS") {
+        return res.status(200).end();
+    }
 
-Analise cuidadosamente:
+    if (req.method !== "POST") {
+        return res.status(200).json({
+            status: "ok",
+            versao: "Ingafert Vision 2.0"
+        });
+    }
 
-- formato
-- espessura
-- diâmetro
-- quantidade e posição dos furos
-- dentes
-- chavetas
-- rasgos
-- buchas
-- rolamentos
-- soldas
-- pintura
-- acabamento
-- roscas
-- gravações
-- números gravados
-- letras gravadas
-- logotipo
-- fabricante
+    try {
 
-Antes de responder compare mentalmente a peça com milhares de peças agrícolas existentes.
+        const { imagem } = req.body;
 
-Caso exista alguma gravação, utilize-a para identificar a peça.
+        if (!imagem) {
 
-Nunca invente:
+            return res.status(400).json({
+                status: "erro",
+                mensagem: "Imagem não enviada."
+            });
 
-- marca
-- código
-- referência
+        }
 
-Se não tiver certeza deixe vazio.
+    const resposta = await openai.responses.create({
 
-Se conhecer o nome comercial utilizado no Brasil utilize-o.
+    model: "gpt-4.1",
 
-A descrição deve ser curta, técnica e objetiva.
+    input: [
 
-No campo confiança informe um valor entre 0 e 1.
+        {
 
-Retorne SOMENTE este JSON:
+            role: "user",
+
+            content: [
+
+                {
+                    type: "input_text",
+                    text: `
+Analise esta peça agrícola.
+
+Responda SOMENTE este JSON:
 
 {
   "nome":"",
   "marca":"",
   "codigo_original":"",
   "referencias":[],
-  "categoria":"",
-  "descricao":"",
-  "confianca":0,
-  "buscas":[]
+  "descricao":""
 }
-Além do nome principal, gere entre 5 e 10 termos comerciais utilizados no Brasil para procurar esta peça.
+`
+                },
 
-Os termos devem ser curtos.
+                {
+                    type: "input_image",
+                    image_url: imagem,
+                    detail: "high"
+                }
 
-Exemplo:
-
-"buscas":[
-"lâmina de corte",
-"faca barra de corte",
-"lâmina barra de corte",
-"barra de corte",
-"faca plataforma"
-]
-
-}
-`;
-
-    // ==========================
-    // OPENAI
-    // ==========================
-
-    const resposta = await openai.responses.create({
-
-      model: "gpt-4.1",
-
-      input: [
-
-        {
-
-          role: "user",
-
-          content: [
-
-            {
-              type: "input_text",
-              text: PROMPT
-            },
-
-            {
-              type: "input_image",
-              image_url: imagem,
-              detail: "high"
-            }
-
-          ]
+            ]
 
         }
 
-      ]
-
-    });
-
-    const texto = resposta.output_text.trim();
-
-console.log(texto);
-
-const json =
-    texto
-        .replace(/```json/g, "")
-        .replace(/```/g, "")
-        .trim();
-
-let analise;
-
-try {
-    analise = JSON.parse(json);
-} catch (e) {
-    console.error("JSON RECEBIDO:");
-    console.error(json);
-    throw e;
-}
-const catalogo = JSON.parse(
-    fs.readFileSync(
-        path.join(process.cwd(), "dados", "catalogo.json"),
-        "utf8"
-    )
-);
-
-    const catalogoArray = Array.isArray(catalogo)
-    ? catalogo
-    : Object.values(catalogo);
-    
-    function procurarProduto(analise) {
-
-    const termos = [
-        analise.codigo_original,
-        ...(analise.referencias || []),
-        analise.nome,
     ]
-    .filter(Boolean)
-    .map(t => String(t).toLowerCase());
 
-   for (const produto of catalogoArray) {
-
-        const texto = JSON.stringify(produto).toLowerCase();
-
-        if (termos.some(t => texto.includes(t))) {
-            return produto;
-        }
-
-    }
-
-    return null;
-
-}
-      const produtoCatalogo = procurarProduto(analise);
-    
-    const buscas = Array.isArray(analise.buscas)
-    ? analise.buscas
-    : [];
-
-    // ==========================
-    // GOOGLE
-    // ==========================
-
-   const listaBuscas = [];
-
-if (analise.nome)
-    listaBuscas.push(analise.nome);
-
-if (analise.codigo_original)
-    listaBuscas.push(analise.codigo_original);
-
-if (analise.marca)
-    listaBuscas.push(analise.marca);
-
-buscas.forEach(item => {
-    if (item && !listaBuscas.includes(item))
-        listaBuscas.push(item);
 });
 
+const analise = JSON.parse(resposta.output_text);
 
-const pesquisa = encodeURIComponent(
-  buscas[0] || "site:ingafert.com.br"
-);
-
-const busca = [
+const termo = [
     analise.nome,
-    analise.codigo_original,
-    analise.marca
+    analise.marca,
+    analise.codigo_original
 ]
 .filter(Boolean)
 .join(" ");
 
-const urlBusca =
-    "https://www.ingafert.com.br/busca?q=" +
-    encodeURIComponent(
-        buscas[0] ||
-        buscas[1] ||
-        buscas[2] ||
-        analise.nome ||
-        ""
-    );
+const produto = await buscarNoGoogle(
+    `site:ingafert.com.br ${termo}`
+);
 
-    const encontrado =
-    await buscarProduto(
-        buscas[0] ||
-        buscas[1] ||
-        buscas[2] ||
-        analise.nome ||
-        ""
-    );
-const produto = {
-    ...(produtoCatalogo || {}),
-    nome: analise.nome,
-    marca: analise.marca,
-    codigo: analise.codigo_original,
-    categoria: analise.categoria,
-    descricao: analise.descricao,
-    confianca: analise.confianca,
-    foto: encontrado.foto,
-    url: encontrado.url || urlBusca
-};
-    
-    // ==========================
-    // RETORNO
-    // ==========================
-
-   return res.status(200).json({
+return res.status(200).json({
 
     status: "ok",
 
     analise,
 
-    buscas: listaBuscas,
-
-    produto,
-
-    google: urlBusca
+    produto
 
 });
 
-  } catch (erro) {
 
-    console.error(erro);
+    } catch (erro) {
 
-    return res.status(500).json({
+        console.error(erro);
 
-      status: "erro",
+        return res.status(500).json({
+            status: "erro",
+            mensagem: erro.message
+        });
 
-      mensagem: erro.message
-
-    });
-
-  }
+    }
 
 }
