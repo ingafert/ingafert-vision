@@ -100,20 +100,6 @@ Responda SOMENTE este JSON.
 
     const analise = JSON.parse(texto);
 
-   const produto = {
-
-    encontrou: true,
-
-    nome: analise.nome || "",
-
-    marca: analise.marca || "",
-
-    descricao: analise.descricao || "",
-
-    referencias: analise.referencias || [],
-
-    foto: "",
-
     
 const termoBusca =
     analise.codigo_original ||
