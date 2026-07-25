@@ -5,7 +5,7 @@ export default async function handler(req, res) {
         produtos: [
 
             {
-                referencia: "H20357",
+                referencia: "CQ32379",
                 nome: "Lâmina de Corte de Plataforma",
                 url: "https://ingafert.com.br/25-un-lamina-de-corte-vv-para-john-deere-refcq32379/p",
                 foto: ""
