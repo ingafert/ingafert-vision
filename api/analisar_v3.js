@@ -223,8 +223,15 @@ const json =
         .replace(/```/g, "")
         .trim();
 
-const analise = JSON.parse(json);
+let analise;
 
+try {
+    analise = JSON.parse(json);
+} catch (e) {
+    console.error("JSON RECEBIDO:");
+    console.error(json);
+    throw e;
+}
 const catalogo = JSON.parse(
     fs.readFileSync(
         path.join(process.cwd(), "dados", "catalogo.json"),
