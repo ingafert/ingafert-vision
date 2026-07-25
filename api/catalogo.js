@@ -2,43 +2,53 @@ import fs from "fs";
 import path from "path";
 
 export default function handler(req, res) {
-  try {
 
-    const arquivo = path.join(process.cwd(), "dados", "produtos.json");
+    try {
 
-    const catalogo = JSON.parse(
-      fs.readFileSync(arquivo, "utf8")
-    );
+        const arquivo = path.join(process.cwd(), "dados", "produtos.json");
 
-    catalogo.produtos = catalogo.produtos.map(produto => {
+        const catalogo = JSON.parse(
+            fs.readFileSync(arquivo, "utf8")
+        );
 
-      const texto = [
-        produto.nome || "",
-        produto.descricao || "",
-        produto.termos || ""
-      ].join(" ");
+        catalogo.produtos = catalogo.produtos.map(produto => {
 
-      const referencias = [
-        ...new Set(
-          (texto.match(/[A-Z]{1,5}\d{3,8}[A-Z0-9-]*/gi) || [])
-            .map(r => r.toUpperCase())
-        )
-      ];
+            const texto = [
+                produto.nome || "",
+                produto.descricao || "",
+                produto.termos || "",
+                produto.url || ""
+            ].join(" ");
 
-      return {
-        ...produto,
-        referencias
-      };
+            const referencias = [
+                ...new Set(
+                    (texto.match(/[A-Z0-9-]{4,}/gi) || [])
+                        .map(r =>
+                            r.replace(/[^A-Z0-9]/gi, "")
+                             .toUpperCase()
+                        )
+                        .filter(r =>
+                            /\d/.test(r) &&
+                            r.length >= 5
+                        )
+                )
+            ];
 
-    });
+            return {
+                ...produto,
+                referencias
+            };
 
-    res.status(200).json(catalogo);
+        });
 
-  } catch (erro) {
+        return res.status(200).json(catalogo);
 
-    res.status(500).json({
-      erro: erro.message
-    });
+    } catch (erro) {
 
-  }
+        return res.status(500).json({
+            erro: erro.message
+        });
+
+    }
+
 }
