@@ -1,174 +1,125 @@
 import OpenAI from "openai";
-const GOOGLE_API_KEY = process.env.GOOGLE_API_KEY;
-const GOOGLE_CX = process.env.GOOGLE_CX;
-
-async function buscarNoGoogle(termo) {
-
-    const url =
-        `https://www.googleapis.com/customsearch/v1?key=${GOOGLE_API_KEY}&cx=${GOOGLE_CX}&q=${encodeURIComponent(termo)}`;
-
-    const resposta = await fetch(url);
-
-    const dados = await resposta.json();
-
-    if (!dados.items || !dados.items.length) {
-
-        return {
-            encontrou: false,
-            respostaGoogle: dados
-        };
-
-    }
-
-    const item = dados.items[0];
-
-    return {
-
-        encontrou: true,
-
-        respostaGoogle: dados,
-
-        titulo: item.title,
-
-        url: item.link,
-
-        descricao: item.snippet,
-
-        imagem: item.pagemap?.cse_image?.[0]?.src || ""
-
-    };
-
-}
 
 const openai = new OpenAI({
-    apiKey: process.env.OPENAI_API_KEY
+  apiKey: process.env.OPENAI_API_KEY
 });
 
 export default async function handler(req, res) {
 
-    const origin = req.headers.origin || "";
+  const origin = req.headers.origin || "";
 
-    const permitidos = [
-        "https://www.ingafert.com.br",
-        "https://ingafert.com.br",
-        "https://ingafert-vision.vercel.app"
-    ];
+  const permitidos = [
+    "https://www.ingafert.com.br",
+    "https://ingafert.com.br",
+    "https://ingafert-vision.vercel.app"
+  ];
 
-    if (permitidos.includes(origin)) {
-        res.setHeader("Access-Control-Allow-Origin", origin);
+  if (permitidos.includes(origin)) {
+    res.setHeader("Access-Control-Allow-Origin", origin);
+  }
+
+  res.setHeader("Access-Control-Allow-Methods", "GET,POST,OPTIONS");
+  res.setHeader("Access-Control-Allow-Headers", "Content-Type");
+
+  if (req.method === "OPTIONS") {
+    return res.status(200).end();
+  }
+
+  if (req.method === "GET") {
+    return res.status(200).json({
+      status: "ok",
+      versao: "Ingafert Vision 3.0"
+    });
+  }
+
+  if (req.method !== "POST") {
+    return res.status(405).json({
+      status: "erro",
+      mensagem: "Método não permitido."
+    });
+  }
+
+  try {
+
+    const { imagem } = req.body;
+
+    if (!imagem) {
+      return res.status(400).json({
+        status: "erro",
+        mensagem: "Imagem não enviada."
+      });
     }
-
-    res.setHeader(
-        "Access-Control-Allow-Methods",
-        "GET,POST,OPTIONS"
-    );
-
-    res.setHeader(
-        "Access-Control-Allow-Headers",
-        "Content-Type"
-    );
-
-    if (req.method === "OPTIONS") {
-        return res.status(200).end();
-    }
-
-    if (req.method !== "POST") {
-        return res.status(200).json({
-            status: "ok",
-            versao: "Ingafert Vision 2.0"
-        });
-    }
-
-    try {
-
-        const { imagem } = req.body;
-
-        if (!imagem) {
-
-            return res.status(400).json({
-                status: "erro",
-                mensagem: "Imagem não enviada."
-            });
-
-        }
 
     const resposta = await openai.responses.create({
 
-    model: "gpt-4.1",
+      model: "gpt-4.1",
 
-    input: [
+      input: [
 
         {
 
-            role: "user",
+          role: "user",
 
-            content: [
+          content: [
 
-                {
-                    type: "input_text",
-                    text: `
-Analise esta peça agrícola.
+            {
+              type: "input_text",
+              text: `
+Você é especialista em peças agrícolas.
 
-Responda SOMENTE este JSON:
+Analise cuidadosamente a imagem.
+
+Responda SOMENTE este JSON.
 
 {
   "nome":"",
   "marca":"",
   "codigo_original":"",
   "referencias":[],
-  "descricao":""
+  "descricao":"",
+  "confianca":0
 }
 `
-                },
+            },
 
-                {
-                    type: "input_image",
-                    image_url: imagem,
-                    detail: "high"
-                }
+            {
+              type: "input_image",
+              image_url: imagem,
+              detail: "high"
+            }
 
-            ]
+          ]
 
         }
 
-    ]
+      ]
 
-});
+    });
 
-const analise = JSON.parse(resposta.output_text);
+    const texto = resposta.output_text.trim();
 
-const termo = [
-    analise.nome,
-    analise.marca,
-    analise.codigo_original
-]
-.filter(Boolean)
-.join(" ");
+    const analise = JSON.parse(texto);
 
-const produto = await buscarNoGoogle(
-    `site:ingafert.com.br ${termo}`
-);
+    return res.status(200).json({
 
-return res.status(200).json({
+      status: "ok",
 
-    status: "ok",
+      analise
 
-    analise,
+    });
 
-    produto
+  } catch (erro) {
 
-});
+    console.error(erro);
 
+    return res.status(500).json({
 
-    } catch (erro) {
+      status: "erro",
 
-        console.error(erro);
+      mensagem: erro.message
 
-        return res.status(500).json({
-            status: "erro",
-            mensagem: erro.message
-        });
+    });
 
-    }
+  }
 
 }
