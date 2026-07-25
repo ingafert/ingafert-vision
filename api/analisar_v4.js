@@ -100,13 +100,29 @@ Responda SOMENTE este JSON.
 
     const analise = JSON.parse(texto);
 
-    return res.status(200).json({
+   return res.status(200).json({
 
-      status: "ok",
+    status: "ok",
 
-      analise
+    analise,
 
-    });
+    produto: {
+
+        nome: analise.nome || "",
+
+        marca: analise.marca || "",
+
+        descricao: analise.descricao || "",
+
+        referencias: analise.referencias || [],
+
+        foto: "",
+
+        url: ""
+
+    }
+
+});
 
   } catch (erro) {
 
