@@ -114,7 +114,29 @@ Responda SOMENTE este JSON.
 
     foto: "",
 
-    url: `https://www.ingafert.com.br/busca?q=${encodeURIComponent(analise.nome || "")}`
+     const termoBusca =
+    analise.codigo_original ||
+    (analise.referencias && analise.referencias[0]) ||
+    analise.nome ||
+    "";
+
+const produto = {
+
+    encontrou: true,
+
+    nome: analise.nome || "",
+
+    marca: analise.marca || "",
+
+    descricao: analise.descricao || "",
+
+    referencias: analise.referencias || [],
+
+    foto: "",
+
+    url: `https://www.ingafert.com.br/busca?q=${encodeURIComponent(termoBusca)}`
+
+};
 
 };
 
