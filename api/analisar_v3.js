@@ -252,7 +252,7 @@ const catalogo = JSON.parse(
     return null;
 
 }
-       const produto = procurarProduto(analise);
+      const produtoCatalogo = procurarProduto(analise);
     
     const buscas = Array.isArray(analise.buscas)
     ? analise.buscas
@@ -310,6 +310,7 @@ const urlBusca =
         ""
     );
 const produto = {
+    ...(produtoCatalogo || {}),
     nome: analise.nome,
     marca: analise.marca,
     codigo: analise.codigo_original,
