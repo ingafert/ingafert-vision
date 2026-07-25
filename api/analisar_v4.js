@@ -65,11 +65,23 @@ export default async function handler(req, res) {
             {
               type: "input_text",
               text: `
-Você é especialista em peças agrícolas.
+Você é um especialista em peças agrícolas.
 
-Analise cuidadosamente a imagem.
+Analise cuidadosamente a fotografia.
 
-Responda SOMENTE este JSON.
+NUNCA deixe campos vazios.
+
+Mesmo que não tenha 100% de certeza, informe a MELHOR hipótese.
+
+Identifique:
+
+- nome da peça
+- fabricante
+- código original
+- referências
+- descrição curta
+
+Retorne SOMENTE este JSON:
 
 {
   "nome":"",
@@ -77,7 +89,7 @@ Responda SOMENTE este JSON.
   "codigo_original":"",
   "referencias":[],
   "descricao":"",
-  "confianca":0
+  "confianca":0.0
 }
 `
             },
