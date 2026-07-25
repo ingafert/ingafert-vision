@@ -1,4 +1,6 @@
 import OpenAI from "openai";
+import fs from "fs";
+import path from "path";
 
 const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY
@@ -214,9 +216,6 @@ Exemplo:
     const texto = resposta.output_text.trim();
 
     const analise = JSON.parse(texto);
- 
-    const fs = require("fs");
-const path = require("path");
 
 const catalogo = JSON.parse(
     fs.readFileSync(
