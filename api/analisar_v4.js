@@ -118,13 +118,12 @@ const termoBusca =
     (analise.referencias && analise.referencias[0]) ||
     analise.nome ||
     "";
-
-const resposta = await fetch(
+const respostaCatalogo = await fetch(
     "https://ingafert-vision.vercel.app/api/catalogo"
 );
 
-const catalogo = await resposta.json();
-
+const catalogo = await respostaCatalogo.json();
+    
 let produto = {
 
     encontrou: false,
