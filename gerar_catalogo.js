@@ -14,12 +14,30 @@ catalogo.produtos = catalogo.produtos.map(produto => {
     ].join(" ");
 
     const referencias = [
-        ...new Set(
-            (texto.match(/[A-Z]{1,5}\d{3,8}[A-Z0-9-]*/gi) || [])
-                .map(r => r.toUpperCase())
-        )
-    ];
-
+  ...new Set(
+    (texto.match(/[A-Z0-9-]{4,}/gi) || [])
+      .map(r => r.replace(/[^A-Z0-9]/g, "").toUpperCase())
+      .filter(r =>
+        /\d/.test(r) &&
+        r.length >= 5 &&
+        ![
+          "HTTPS",
+          "HTTP",
+          "BRASIL",
+          "INCOPARTS",
+          "JOHN",
+          "DEERE",
+          "CASE",
+          "NEWHOLLAND",
+          "MASSEY",
+          "FERGUSON",
+          "VALTRA",
+          "JUMIL",
+          "BALDAN"
+        ].includes(r)
+      )
+  )
+];
     return {
         ...produto,
         referencias
