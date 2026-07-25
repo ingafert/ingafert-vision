@@ -119,9 +119,15 @@ const termoBusca =
     analise.nome ||
     "";
 
-const produto = {
+const resposta = await fetch(
+    "https://ingafert-vision.vercel.app/api/catalogo"
+);
 
-    encontrou: true,
+const catalogo = await resposta.json();
+
+let produto = {
+
+    encontrou: false,
 
     nome: analise.nome || "",
 
@@ -133,10 +139,36 @@ const produto = {
 
     foto: "",
 
-    url: `https://www.ingafert.com.br/busca?q=${encodeURIComponent(termoBusca)}`
+    url: ""
 
 };
 
+const encontrado = catalogo.produtos.find(p =>
+    p.referencia === termoBusca
+);
+
+if (encontrado) {
+
+    produto = {
+
+        encontrou: true,
+
+        nome: encontrado.nome,
+
+        marca: analise.marca || "",
+
+        descricao: analise.descricao || "",
+
+        referencias: analise.referencias || [],
+
+        foto: encontrado.foto,
+
+        url: encontrado.url
+
+    };
+
+}
+    
 return res.status(200).json({
 
     status: "ok",
