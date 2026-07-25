@@ -7,6 +7,9 @@
   "engines": {
     "node": "22.x"
   },
+  "scripts": {
+    "gerar-catalogo": "node gerar_catalogo.js"
+  },
   "dependencies": {
     "openai": "^5.12.2"
   }
