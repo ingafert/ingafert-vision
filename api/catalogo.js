@@ -1,51 +1,57 @@
 import fs from "fs";
 import path from "path";
-import XLSX from "xlsx";
 
-export default async function handler(req, res) {
+export default function handler(req, res) {
 
     try {
 
-        const arquivo = path.join(process.cwd(), "dados", "produtos.xlsx");
+        const arquivo = path.join(process.cwd(), "dados", "produtos.csv");
 
-        const workbook = XLSX.readFile(arquivo);
+        const texto = fs.readFileSync(arquivo, "utf8");
 
-        const sheet = workbook.Sheets[workbook.SheetNames[0]];
+        const linhas = texto.split("\n").filter(l => l.trim());
 
-        const dados = XLSX.utils.sheet_to_json(sheet);
+        const cabecalho = linhas[0].split(",");
 
-        const produtos = dados.map(item => ({
+        const produtos = [];
 
-            referencia:
-                item.codigo_erp ||
-                item.referencia ||
-                "",
+        for (let i = 1; i < linhas.length; i++) {
 
-            nome:
-                item.nome ||
-                "",
+            const valores = linhas[i].match(/(".*?"|[^",]+)(?=\s*,|\s*$)/g);
 
-            marca:
-                item.marca ||
-                "",
+            if (!valores) continue;
 
-            url:
-                item.link_produto ||
-                "",
+            const item = {};
 
-            foto:
-                item.link_foto_principal ||
-                "",
+            cabecalho.forEach((campo, indice) => {
 
-            termos:
-                item.termos_de_busca ||
-                ""
+                item[campo] = (valores[indice] || "")
+                    .replace(/^"|"$/g, "")
+                    .trim();
 
-        }));
+            });
 
-        res.status(200).json({
-            produtos
-        });
+            produtos.push({
+
+                referencia: item.codigo_erp || "",
+
+                nome: item.nome || "",
+
+                marca: item.marca || "",
+
+                descricao: item.descricao || "",
+
+                termos: item.termos_de_busca || "",
+
+                url: item.link_produto || "",
+
+                foto: item.link_foto_principal || ""
+
+            });
+
+        }
+
+        res.status(200).json({ produtos });
 
     } catch (erro) {
 
