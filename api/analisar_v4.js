@@ -114,7 +114,8 @@ Responda SOMENTE este JSON.
 
     foto: "",
 
-     const termoBusca =
+    
+const termoBusca =
     analise.codigo_original ||
     (analise.referencias && analise.referencias[0]) ||
     analise.nome ||
@@ -135,8 +136,6 @@ const produto = {
     foto: "",
 
     url: `https://www.ingafert.com.br/busca?q=${encodeURIComponent(termoBusca)}`
-
-};
 
 };
 
