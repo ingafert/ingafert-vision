@@ -162,31 +162,49 @@ const busca = [
 .filter(Boolean)
 .map(v => String(v).toLowerCase().trim());
 
-const encontrado = catalogo.produtos.find(p => {
+const encontrado = catalogo.produtos
+    .map(p => {
 
-    const texto = [
-    p.referencia,
-    ...(p.referencias || []),
-    p.nome,
-    p.marca,
-    p.descricao,
-    p.termos
-]
-    .filter(Boolean)
-    .join(" ")
-    .toLowerCase();
+        const texto = [
+            p.referencia,
+            ...(p.referencias || []),
+            p.nome,
+            p.marca,
+            p.descricao,
+            p.termos
+        ]
+        .filter(Boolean)
+        .join(" ")
+        .toLowerCase();
 
-    return busca.some(item => texto.includes(item));
+        let pontos = 0;
 
-});
+        busca.forEach(item => {
+            if (texto.includes(item)) pontos += 10;
+        });
 
-if (encontrado) {
+        const nomeIA = (analise.nome || "").toLowerCase();
+
+        nomeIA.split(" ").forEach(palavra => {
+            if (palavra.length > 3 && texto.includes(palavra))
+                pontos++;
+        });
+
+        return {
+            produto: p,
+            pontos
+        };
+
+    })
+    .sort((a, b) => b.pontos - a.pontos)[0];
+
+if (encontrado && encontrado.pontos >= 5) {
 
     produto = {
 
         encontrou: true,
 
-        nome: encontrado.nome,
+        nome: encontrado.produto.nome,
 
         marca: analise.marca || "",
 
@@ -194,9 +212,9 @@ if (encontrado) {
 
         referencias: analise.referencias || [],
 
-        foto: encontrado.foto,
+        foto: encontrado.produto.foto,
 
-        url: encontrado.url
+        url: encontrado.produto.url
 
     };
 
