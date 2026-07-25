@@ -142,9 +142,32 @@ let produto = {
 
 };
 
-const encontrado = catalogo.produtos.find(p =>
-    p.referencia === termoBusca
-);
+const busca = [
+    termoBusca,
+    analise.codigo_original,
+    ...(analise.referencias || []),
+    analise.nome,
+    analise.descricao
+]
+.filter(Boolean)
+.map(v => String(v).toLowerCase().trim());
+
+const encontrado = catalogo.produtos.find(p => {
+
+    const texto = [
+        p.referencia,
+        p.nome,
+        p.marca,
+        p.descricao,
+        p.termos
+    ]
+    .filter(Boolean)
+    .join(" ")
+    .toLowerCase();
+
+    return busca.some(item => texto.includes(item));
+
+});
 
 if (encontrado) {
 
