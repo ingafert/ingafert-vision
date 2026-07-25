@@ -165,12 +165,13 @@ const busca = [
 const encontrado = catalogo.produtos.find(p => {
 
     const texto = [
-        p.referencia,
-        p.nome,
-        p.marca,
-        p.descricao,
-        p.termos
-    ]
+    p.referencia,
+    ...(p.referencias || []),
+    p.nome,
+    p.marca,
+    p.descricao,
+    p.termos
+]
     .filter(Boolean)
     .join(" ")
     .toLowerCase();
