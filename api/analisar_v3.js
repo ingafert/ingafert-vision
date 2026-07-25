@@ -215,7 +215,15 @@ Exemplo:
 
     const texto = resposta.output_text.trim();
 
-    const analise = JSON.parse(texto);
+console.log(texto);
+
+const json =
+    texto
+        .replace(/```json/g, "")
+        .replace(/```/g, "")
+        .trim();
+
+const analise = JSON.parse(json);
 
 const catalogo = JSON.parse(
     fs.readFileSync(
