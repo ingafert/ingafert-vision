@@ -100,22 +100,23 @@ Responda SOMENTE este JSON.
 
     const analise = JSON.parse(texto);
 
-   const respostaProduto = await fetch(
-    `${req.headers.origin || "https://ingafert-vision.vercel.app"}/api/procurar_produto`,
-    {
-        method: "POST",
-        headers: {
-            "Content-Type": "application/json"
-        },
-        body: JSON.stringify({
-            codigo: analise.codigo_original,
-            referencias: analise.referencias,
-            nome: analise.nome
-        })
-    }
-);
+   const produto = {
 
-const produto = await respostaProduto.json();
+    encontrou: true,
+
+    nome: analise.nome || "",
+
+    marca: analise.marca || "",
+
+    descricao: analise.descricao || "",
+
+    referencias: analise.referencias || [],
+
+    foto: "",
+
+    url: `https://www.ingafert.com.br/busca?q=${encodeURIComponent(analise.nome || "")}`
+
+};
 
 return res.status(200).json({
 
