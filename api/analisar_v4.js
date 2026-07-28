@@ -196,12 +196,54 @@ const encontrado = catalogo.produtos
 
 });
 
-        const nomeIA = (analise.nome || "").toLowerCase();
+       const nomeIA = (analise.nome || "").toLowerCase();
 
-        nomeIA.split(" ").forEach(palavra => {
-            if (palavra.length > 3 && texto.includes(palavra))
-                pontos++;
-        });
+nomeIA.split(/\s+/).forEach(palavra => {
+
+    palavra = palavra.trim();
+
+    if (palavra.length < 4) return;
+
+    if ([
+        "para",
+        "barra",
+        "corte",
+        "peça",
+        "peca",
+        "original",
+        "diversos",
+        "modelo",
+        "marca",
+        "compativel",
+        "compatível"
+    ].includes(palavra)) return;
+
+    if (texto.includes(palavra)) {
+
+        pontos += 5;
+
+    }
+
+});
+
+      if (
+    analise.codigo_original &&
+    texto.includes(analise.codigo_original.toLowerCase())
+) {
+
+    pontos += 500;
+
+}
+
+(analise.referencias || []).forEach(ref => {
+
+    if (texto.includes(ref.toLowerCase())) {
+
+        pontos += 300;
+
+    }
+
+});
 
         return {
             produto: p,
