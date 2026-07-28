@@ -162,7 +162,7 @@ const busca = [
 .filter(Boolean)
 .map(v => String(v).toLowerCase().trim());
 
-const encontrado = catalogo.produtos
+const ranking = catalogo.produtos
     .map(p => {
 
         const texto = [
@@ -250,8 +250,20 @@ nomeIA.split(/\s+/).forEach(palavra => {
             pontos
         };
 
-    })
-    .sort((a, b) => b.pontos - a.pontos)[0];
+   })
+.sort((a, b) => b.pontos - a.pontos);
+
+const encontrado = ranking[0];
+
+console.log("TOP 10 PRODUTOS");
+
+console.table(
+    ranking.slice(0,10).map(x => ({
+        nome: x.produto.nome,
+        referencia: x.produto.referencia,
+        pontos: x.pontos
+    }))
+);
 
 if (encontrado && encontrado.pontos >= 5) {
 
