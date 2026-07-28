@@ -167,6 +167,7 @@ const encontrado = catalogo.produtos
 
         const texto = [
             p.referencia,
+            p.codigo_original,
             ...(p.referencias || []),
             p.nome,
             p.marca,
@@ -179,9 +180,21 @@ const encontrado = catalogo.produtos
 
         let pontos = 0;
 
-        busca.forEach(item => {
-            if (texto.includes(item)) pontos += 10;
-        });
+      busca.forEach(item => {
+
+    if (!item) return;
+
+    if (texto === item) {
+
+        pontos += 100;
+
+    } else if (texto.includes(item)) {
+
+        pontos += 20;
+
+    }
+
+});
 
         const nomeIA = (analise.nome || "").toLowerCase();
 
