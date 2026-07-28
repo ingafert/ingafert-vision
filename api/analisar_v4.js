@@ -293,7 +293,17 @@ return res.status(200).json({
 
     analise,
 
-    produto
+    produto,
+
+    ranking: ranking.slice(0,10).map(x => ({
+
+        nome: x.produto.nome,
+
+        referencia: x.produto.referencia,
+
+        pontos: x.pontos
+
+    }))
 
 });
 
