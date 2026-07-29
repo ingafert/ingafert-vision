@@ -258,14 +258,14 @@ for (const item of catalogo.produtos) {
 
 }
 
-// 2 - Se não encontrou por referência, usa o ranking
-if (!encontrado) {
+// 2 - Só usa o ranking se houver uma boa pontuação
+if (!encontrado && ranking.length && ranking[0].pontos >= 300) {
 
     encontrado = ranking[0];
 
 }
 
-if (encontrado) {
+if (encontrado && encontrado.produto) {
 
     produto = {
 
