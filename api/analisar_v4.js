@@ -196,35 +196,8 @@ const ranking = catalogo.produtos
 
 });
 
-       const nomeIA = (analise.nome || "").toLowerCase();
-
-nomeIA.split(/\s+/).forEach(palavra => {
-
-    palavra = palavra.trim();
-
-    if (palavra.length < 4) return;
-
-    if ([
-        "para",
-        "barra",
-        "corte",
-        "peça",
-        "peca",
-        "original",
-        "diversos",
-        "modelo",
-        "marca",
-        "compativel",
-        "compatível"
-    ].includes(palavra)) return;
-
-    if (texto.includes(palavra)) {
-
-        pontos += 5;
-
-    }
-
-});
+       // Não pontuar por palavras do nome.
+// A busca será feita apenas por referências e códigos.
 
       if (
     analise.codigo_original &&
