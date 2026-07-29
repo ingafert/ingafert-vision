@@ -162,91 +162,30 @@ const busca = [
 .filter(Boolean)
 .map(v => String(v).toLowerCase().trim());
 
-const ranking = catalogo.produtos
-    .map(p => {
-
-        const texto = [
-            p.referencia,
-            p.codigo_original,
-            ...(p.referencias || []),
-            p.nome,
-            p.marca,
-            p.descricao,
-            p.termos
-        ]
-        .filter(Boolean)
-        .join(" ")
-        .toLowerCase();
-
-        let pontos = 0;
-
-      busca.forEach(item => {
-
-    if (!item) return;
-
-    if (texto === item) {
-
-        pontos += 100;
-
-    } else if (texto.includes(item)) {
-
-        pontos += 20;
-
-    }
-
-});
-
-       // Não pontuar por palavras do nome.
-// A busca será feita apenas por referências e códigos.
-
-      if (
-    analise.codigo_original &&
-    texto.includes(analise.codigo_original.toLowerCase())
-) {
-
-    pontos += 500;
-
-}
-
-(analise.referencias || []).forEach(ref => {
-
-    if (texto.includes(ref.toLowerCase())) {
-
-        pontos += 300;
-
-    }
-
-});
-
-        return {
-            produto: p,
-            pontos
-        };
-
-   })
-.sort((a, b) => b.pontos - a.pontos);
-
+const produtos = Array.isArray(catalogo.produtos)
+    ? catalogo.produtos
+    : [];
+    
 let encontrado = null;
 
-// 1 - Procura por referência exata
-for (const item of catalogo.produtos) {
+const referenciasIA = [
+    analise.codigo_original,
+    ...(analise.referencias || [])
+]
+.filter(Boolean)
+.map(r => String(r).trim().toUpperCase());
 
-    const refs = [
+for (const item of produtos) {
+
+    const referenciasProduto = [
         item.referencia,
         item.codigo_original,
         ...(item.referencias || [])
     ]
     .filter(Boolean)
-    .map(r => r.toLowerCase());
+    .map(r => String(r).trim().toUpperCase());
 
-    const refsIA = [
-        analise.codigo_original,
-        ...(analise.referencias || [])
-    ]
-    .filter(Boolean)
-    .map(r => r.toLowerCase());
-
-    if (refsIA.some(r => refs.includes(r))) {
+    if (referenciasIA.some(ref => referenciasProduto.includes(ref))) {
 
         encontrado = {
             produto: item
@@ -258,30 +197,29 @@ for (const item of catalogo.produtos) {
 
 }
 
-// 2 - Só usa o ranking se houver uma boa pontuação
-if (!encontrado && ranking.length && ranking[0].pontos >= 300) {
-
-    encontrado = ranking[0];
-
-}
-
 if (encontrado && encontrado.produto) {
+
+    const p = encontrado.produto;
 
     produto = {
 
         encontrou: true,
 
-        nome: encontrado.produto.nome,
+        nome: p.nome || analise.nome,
 
-        marca: encontrado.produto.marca,
+        marca: p.marca || analise.marca,
 
-        descricao: encontrado.produto.descricao,
+        descricao: p.descricao || analise.descricao,
 
-        referencias: encontrado.produto.referencias,
+        referencias: [
+            ...(p.referencias || []),
+            p.referencia,
+            p.codigo_original
+        ].filter(Boolean),
 
-        foto: encontrado.produto.foto,
+        foto: p.foto || "",
 
-        url: encontrado.produto.url
+        url: p.url || ""
 
     };
 
@@ -293,13 +231,7 @@ return res.status(200).json({
 
     analise,
 
-    produto,
-
-    ranking: (ranking || []).slice(0,10).map(x => ({
-        nome: x.produto.nome,
-        referencia: x.produto.referencia,
-        pontos: x.pontos
-    }))
+    produto
 
 });
 
