@@ -253,19 +253,46 @@ nomeIA.split(/\s+/).forEach(palavra => {
    })
 .sort((a, b) => b.pontos - a.pontos);
 
-const encontrado = ranking[0];
+let encontrado = null;
 
-console.log("TOP 10 PRODUTOS");
+// 1 - Procura por referência exata
+for (const item of catalogo.produtos) {
 
-console.table(
-    ranking.slice(0,10).map(x => ({
-        nome: x.produto.nome,
-        referencia: x.produto.referencia,
-        pontos: x.pontos
-    }))
-);
+    const refs = [
+        item.referencia,
+        item.codigo_original,
+        ...(item.referencias || [])
+    ]
+    .filter(Boolean)
+    .map(r => r.toLowerCase());
 
-if (encontrado && encontrado.pontos >= 5) {
+    const refsIA = [
+        analise.codigo_original,
+        ...(analise.referencias || [])
+    ]
+    .filter(Boolean)
+    .map(r => r.toLowerCase());
+
+    if (refsIA.some(r => refs.includes(r))) {
+
+        encontrado = {
+            produto: item
+        };
+
+        break;
+
+    }
+
+}
+
+// 2 - Se não encontrou por referência, usa o ranking
+if (!encontrado) {
+
+    encontrado = ranking[0];
+
+}
+
+if (encontrado) {
 
     produto = {
 
@@ -273,11 +300,11 @@ if (encontrado && encontrado.pontos >= 5) {
 
         nome: encontrado.produto.nome,
 
-        marca: analise.marca || "",
+        marca: encontrado.produto.marca,
 
-        descricao: analise.descricao || "",
+        descricao: encontrado.produto.descricao,
 
-        referencias: analise.referencias || [],
+        referencias: encontrado.produto.referencias,
 
         foto: encontrado.produto.foto,
 
