@@ -295,14 +295,10 @@ return res.status(200).json({
 
     produto,
 
-    ranking: ranking.slice(0,10).map(x => ({
-
+    ranking: (ranking || []).slice(0,10).map(x => ({
         nome: x.produto.nome,
-
         referencia: x.produto.referencia,
-
         pontos: x.pontos
-
     }))
 
 });
