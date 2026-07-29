@@ -20,25 +20,7 @@ export default function handler(req, res) {
                 produto.url || ""
             ].join(" ");
 
-            const referencias = [];
-
-const regex =
-/(?:REF(?:ER[ÊE]NCIA)?|C[ÓO]DIGO(?: ORIGINAL)?|ORIGINAL)\s*:?\s*([A-Z0-9-]+)/gi;
-
-let match;
-
-while ((match = regex.exec(texto)) !== null) {
-
-    const codigo = match[1]
-        .replace(/[^A-Z0-9-]/gi, "")
-        .toUpperCase();
-
-    if (!referencias.includes(codigo)) {
-        referencias.push(codigo);
-    }
-
-}
-
+           
             return {
                 ...produto,
                 referencias
