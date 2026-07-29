@@ -11,23 +11,6 @@ export default function handler(req, res) {
             fs.readFileSync(arquivo, "utf8")
         );
 
-        catalogo.produtos = catalogo.produtos.map(produto => {
-
-            const texto = [
-                produto.nome || "",
-                produto.descricao || "",
-                produto.termos || "",
-                produto.url || ""
-            ].join(" ");
-
-           
-            return {
-                ...produto,
-                referencias
-            };
-
-        });
-
         return res.status(200).json(catalogo);
 
     } catch (erro) {
