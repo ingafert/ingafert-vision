@@ -1,1 +1,42 @@
- 
+{
+  "produtos": [
+    {
+      "id": "001",
+      "nome": "Polia do Alimentador",
+      "marca": "John Deere OEM",
+      "referencia": "AH219367",
+      "referencias": ["AH219367", "AL169142", "CH12725"],
+      "descricao": "Polia do alimentador para colheitadeira John Deere.",
+      "url": "https://ingafert.com.br/produto/polia-alimentador-ah219367",
+      "foto": "https://cdn.ingafert.com.br/produtos/AH219367.jpg",
+      "aplicacao": "Colheitadeiras John Deere 9400, 9500, 9600",
+      "maquinas": ["John Deere 9400", "John Deere 9500"]
+    },
+    {
+      "id": "002",
+      "nome": "Correia Trapezoidal B-67",
+      "marca": "Bando",
+      "referencia": "B67",
+      "referencias": ["B67", "SPB2590", "5L670"],
+      "descricao": "Correia de transmissão para tratores.",
+      "url": "https://ingafert.com.br/produto/correia-b67",
+      "foto": "https://cdn.ingafert.com.br/produtos/B67.jpg",
+      "aplicacao": "Tratores agrícolas diversos",
+      "maquinas": ["Case IH 7140", "New Holland 7740"]
+    },
+    {
+      "id": "003",
+      "nome": "Rolamento 6205-2RS",
+      "marca": "SKF",
+      "referencia": "6205-2RS",
+      "referencias": ["6205", "6205-C3"],
+      "descricao": "Rolamento radial blindado.",
+      "url": "https://ingafert.com.br/produto/rolamento-6205",
+      "foto": "https://cdn.ingafert.com.br/produtos/6205-2RS.jpg",
+      "aplicacao": "Rodas, bombas, sistemas agrícolas",
+      "maquinas": ["Múltiplas aplicações"]
+    }
+  ],
+  "versao": "v5",
+  "atualizado": "2025-01-01"
+}
