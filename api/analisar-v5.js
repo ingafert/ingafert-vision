@@ -197,11 +197,7 @@ Analise a foto enviada e retorne APENAS um JSON válido (sem explicações, sem 
         referencia: produtoEncontrado.referencia || produtoEncontrado.codigo_original || "",
         referencias: produtoEncontrado.referencias || [],
         descricao: produtoEncontrado.descricao || "",
-        url:
-  produtoEncontrado.url ||
-  (produtoEncontrado.slug
-    ? `https://ingafert.com.br/produto/${produtoEncontrado.slug}`
-    : ""),
+       url: produtoEncontrado.url || "",
         foto: produtoEncontrado.foto || "",
         aplicacao: produtoEncontrado.aplicacao || "",
         maquinas: produtoEncontrado.maquinas || []
