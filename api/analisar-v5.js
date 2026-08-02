@@ -42,6 +42,13 @@ function carregarCatalogo() {
 function buscarProduto(analise) {
   const catalogo = carregarCatalogo();
   const produtos = catalogo.produtos || [];
+
+  console.log("Total produtos:", produtos.length);
+console.log("Primeiro produto:", produtos[0]);
+
+console.log("Nome IA:", analise.nome);
+console.log("Código IA:", analise.codigo_original);
+console.log("Referências IA:", analise.referencias);
   
   const nomeIA = (analise.nome || "").toLowerCase();
   const refsIA = Array.isArray(analise.referencias) 
@@ -52,6 +59,12 @@ function buscarProduto(analise) {
   // Tenta achar por referência exata ou parcial
   for (const p of produtos) {
     const refsProd = [];
+    console.log({
+  nome: p.nome,
+  codigo_original: p.codigo_original,
+  referencia: p.referencia,
+  referencias: p.referencias
+});
     if (p.referencia) refsProd.push(String(p.referencia));
     if (p.codigo_original) refsProd.push(String(p.codigo_original));
     if (Array.isArray(p.referencias)) refsProd.push(...p.referencias.map(String));
