@@ -11,10 +11,30 @@ function carregarCatalogo() {
   try {
     const arquivo = path.join(process.cwd(), "catalogo.json");
     const conteudo = fs.readFileSync(arquivo, "utf8");
-    return JSON.parse(conteudo);
+    const json = JSON.parse(conteudo);
+
+    // Se o catálogo vier como array [...]
+    if (Array.isArray(json)) {
+      return {
+        produtos: json
+      };
+    }
+
+    // Se já vier como { produtos: [...] }
+    if (json.produtos) {
+      return json;
+    }
+
+    // Segurança
+    return {
+      produtos: []
+    };
+
   } catch (erro) {
     console.error("❌ Erro ao ler catalogo.json:", erro.message);
-    return { produtos: [] };
+    return {
+      produtos: []
+    };
   }
 }
 
