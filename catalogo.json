@@ -19,7 +19,10 @@
     "referencias": [
       "22513"
     ],
-    "imagem": ""
+    foto:
+    produtoEncontrado.foto ||
+    produtoEncontrado.imagem ||
+    "",
   },
   {
     "id": null,
